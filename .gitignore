@@ -27,7 +27,6 @@ cartographer_maps/
 general_record/
 *.csv
 *.png
-*.txt
 src/imu_calib/
 src/imu_calib/imu_lidar_calibration.zip
 li_calib.zip
