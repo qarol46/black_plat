@@ -30,11 +30,11 @@ package_name = 't21_navigation'
 
 def generate_launch_description():
 
-    use_sim_time = LaunchConfiguration('sim')
+    use_sim_time = LaunchConfiguration('use_sim_time')
     slam_params_file = LaunchConfiguration('slam_params_file')
 
     declare_use_sim_time_argument = DeclareLaunchArgument(
-        name='sim',
+        name='use_sim_time',
         default_value='false',
         description='Use simulation/Gazebo clock')
     declare_slam_params_file_cmd = DeclareLaunchArgument(

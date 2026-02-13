@@ -1,13 +1,21 @@
 velodyne_driver_node:
     ros__parameters:
+        # The IP address that the Velodyne is on. From the factory, this is 192.168.1.201.
         device_ip: 192.168.1.201
         gps_time: false
         time_offset: 0.0
+        # Whether the device should start-up enabled or not. Defaults to True.
         enabled: true
         read_once: false
+        # Whether to output the data as fast as possible, (True), or sleep the appropriate delay between packets (False). 
+        # Only used in PCAP playback mode. Defaults to False.
         read_fast: false
         repeat_delay: 0.0
+        # The frame_id to use when constructing the header for the packet to be published. Defaults to "velodyne".
         frame_id: lidar_link
+        # The model number of the Velodyne attached. This should be one of 64E, 64E_S2, 64E_S2.1, 64E_S3, 32E, 32C, or VLP16
         model: VLP16
+        # The RPM that the Velodyne is configured for. 
+        # Note that this is descriptive, not prescriptive, so this should be set to match the value configured through the Velodyne web interface.
         rpm: 600.0
         port: 2368

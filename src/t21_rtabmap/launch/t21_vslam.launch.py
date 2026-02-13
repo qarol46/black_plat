@@ -28,7 +28,7 @@ def launch_setup(context, *args, **kwargs):
         # If set, TF is used to get odometry instead of the topic.
         'odom_frame_id': 'odom',  # default_value=''
         # Set to true if using simulation
-        'use_sim_time': True,
+        'use_sim_time': False,
         # false=exact synchronization.
         'approx_sync': True,
         # 0 means infinite interval duration (used with approx_sync=true)
@@ -65,7 +65,7 @@ def launch_setup(context, *args, **kwargs):
         # Recieve Lidar data
         'subscribe_scan': False,  # default_value='false'
         # I guess recieve LIDAR msg/pointcloud
-        'subscribe_scan_cloud': True,  # default_value='false'
+        'subscribe_scan_cloud': False,  # default_value='false'
         # Subscription settings
         'subscribe_sensor_data': False,  # default_value='false'
         # Subscription settings
@@ -128,8 +128,8 @@ def launch_setup(context, *args, **kwargs):
 
     # Remappings - change to your projects topics names
     vslam_remappings=[('imu', '/imu/data'),
-                      ('odom', 'odom'),
-                      ('scan_cloud', '/velodyne_points'),]
+                      ('odom', 'odom'),]
+                      #('scan_cloud', '/velodyne_points'),]
   
     rgbd_remappings = [
         ('rgb/image', '/camera/image_raw'),
@@ -141,17 +141,17 @@ def launch_setup(context, *args, **kwargs):
     
     return [        
         # compute imu orientation
-        Node(
-            package='imu_filter_madgwick', executable='imu_filter_madgwick_node', output='screen',
-            parameters=[{
-              'use_mag':False,
-              'world_frame':'map',
-              'publish_tf':True,
-              'use_sim_time': LaunchConfiguration('use_sim_time'),}],
-            remappings=[
-                ('imu/data_raw', 'imu/data_raw'),
-                ('imu/data', 'imu/data')]
-            ),
+        # Node(
+        #     package='imu_filter_madgwick', executable='imu_filter_madgwick_node', output='screen',
+        #     parameters=[{
+        #       'use_mag':False,
+        #       'world_frame':'map',
+        #       'publish_tf':True,
+        #       'use_sim_time': LaunchConfiguration('use_sim_time'),}],
+        #     remappings=[
+        #         ('imu/data_raw', 'imu/data_raw'),
+        #         ('imu/data', 'imu/data')]
+        #     ),
         
         # VSLAM nodes:
         Node(

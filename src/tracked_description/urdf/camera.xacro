@@ -20,7 +20,7 @@
           <joint name="${name}_joint" type="fixed">
             <parent link="big_box_link"/>
             <child link="${name}_link"/>
-            <origin xyz="${xyz}" rpy="0.0 0.0 0.0"/>
+            <origin xyz="${xyz}" rpy="0.0 -0.25 0.0"/>
           </joint>
   
           <link name="${name}_optical_link"/>

@@ -27,11 +27,11 @@ def generate_launch_description():
                 'qos_overrides./scan.publisher.durability': 'volatile',
                 'qos_overrides./scan.publisher.history': 'keep_last',
                 'qos_overrides./scan.publisher.depth': 10,
-                'use_sim_time': LaunchConfiguration('sim'),  # Explicitly set
+                'use_sim_time': LaunchConfiguration('use_sim_time'),  # Explicitly set
                 'allow_undeclared_parameters': True,
                 #'target_frame': 'velodyne',
                 #'transform_tolerance': 0.01,
-                'min_height': -0.1,  # Lowered to detect ground obstacles
+                'min_height': 0.1,  # Lowered to detect ground obstacles
                 'max_height': 2.0,
                 'angle_min': -M_PI,  # -M_PI/2
                 'angle_max': M_PI,  # M_PI/2
@@ -65,7 +65,7 @@ def generate_launch_description():
     
     return LaunchDescription([
         DeclareLaunchArgument(
-            name='sim', 
+            name='use_sim_time', 
             default_value='false',
             description='Enable use_sime_time to true'
         ),

@@ -1,10 +1,22 @@
 velodyne_transform_node:
     ros__parameters:
+        # The path to the calibration file for the particular device. 
+        # There are a set of default calibration files to start with in the "params" subdirectory in this package. Defaults to the empty string.
         calibration: VLP16db.yaml
         model: VLP16
+        # The minimum range in meters that a point must be to be added to the resulting point cloud. 
+        # Points closer than this are discarded. Must be between 0.1 and 10.0
         min_range: 0.5
+        # The maximum range in meters that a point must be to be added to the resulting point cloud. 
+        # Points further away than this are discarded. Must be between 0.1 and 200.0. Defaults to 130.0.
         max_range: 50.0
+        # The point around the circumference of the device, in radians, to "center" the view. 
+        # Combined with view_width, this allows the node to generate a pointcloud only for the given width, centered at this point. 
+        # This can vastly reduce the CPU requirements of the node. Must be between -Pi and Pi, where 0 is straight ahead from the device. Defaults to 0.0.
         view_direction: 0.0
+        # The fixed coordinate frame to transform the data from.
         fixed_frame: ""
+        # The coordinate frame to apply to the generated point cloud header before publishing.
         target_frame: ""
+        # Whether to organize the cloud by ring (True), or to use the order as it comes directly from the driver (False). Defaults to True.
         organize_cloud: true

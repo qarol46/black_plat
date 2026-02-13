@@ -23,8 +23,8 @@
     # Depth and infrared parameters
     enable_depth: true # enable depth stream
     enable_infra: false # enable infra0 stream
-    enable_infra1: false # enable infra1 stream
-    enable_infra2: false # enable infra2 stream
+    enable_infra1: true # enable infra1 stream
+    enable_infra2: true # enable infra2 stream
     depth_module.depth_profile: "640x480x30" # depth stream profile
     depth_module.depth_format: "Z16" # depth stream format
     depth_module.infra_profile: "640x480x30" # infra streams (0/1/2) profile
@@ -39,6 +39,7 @@
     depth_module.gain.1: 16 # Depth module first gain value. Used for hdr_merge filter
     depth_module.exposure.2: 1 # Depth module second exposure value. Used for hdr_merge filter
     depth_module.gain.2: 16 # Depth module second gain value. Used for hdr_merge filter
+    depth_module.emitter_enabled: 0
   
     # Synchronization and IMU parameters
     enable_sync: false # enable sync mode
