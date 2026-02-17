@@ -60,6 +60,9 @@ else()
   target_link_libraries(${PROJECT_NAME}_mapOptimization gtsam "${cpp_typesupport_target}")
 endif()
 
+add_executable(${PROJECT_NAME}_wheelInertialPreintegration src/wheelInertialPreintegration.cpp)
+ament_target_dependencies(${PROJECT_NAME}_wheelInertialPreintegration rclcpp rclpy std_msgs sensor_msgs geometry_msgs nav_msgs pcl_conversions pcl_msgs visualization_msgs tf2 tf2_ros tf2_eigen tf2_sensor_msgs tf2_geometry_msgs OpenCV PCL GTSAM Eigen)
+target_link_libraries(${PROJECT_NAME}_wheelInertialPreintegration gtsam "${cpp_typesupport_target}")
 
 install(
   DIRECTORY launch
@@ -88,6 +91,11 @@ install(
 
 install(
   TARGETS ${PROJECT_NAME}_mapOptimization
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+  TARGETS ${PROJECT_NAME}_wheelInertialPreintegration
   DESTINATION lib/${PROJECT_NAME}
 )
 
