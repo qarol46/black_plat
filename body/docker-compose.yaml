@@ -1,0 +1,24 @@
+services:
+  body:
+    build:
+      context: /home/tms/Projects/black_plat/body/
+      dockerfile: /home/tms/Projects/black_plat/body/docker/Dockerfile
+    network_mode: host
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev:/dev:ro  
+      - /lib/modules:/lib/modules:ro 
+      - /sys/class/video4linux:/sys/class/video4linux:ro 
+    devices:  
+      - /dev/bus/usb:/dev/bus/usb
+      - /dev/video0:/dev/video0
+    privileged: true
+    stdin_open: true
+    tty: true
+    command: ros2 launch tracked_description bringup_t21.launch.py
+
+  

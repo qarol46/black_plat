@@ -1,0 +1,68 @@
+services:
+  lio-sam:
+    build:
+      context: /home/tms/Projects/black_plat/SLAM/LIO_SAM/
+      dockerfile: /home/tms/Projects/black_plat/SLAM/LIO_SAM/docker/Dockerfile
+    #container_name: liosam-humble-jammy-container
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    network_mode: host
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
+      - 8.8.8.8
+    environment:
+      - "DISPLAY=$DISPLAY"
+      - "NVIDIA_VISIBLE_DEVICES=all"
+      - "NVIDIA_DRIVER_CAPABILITIES=all"
+      - "FASTRTPS_DEFAULT_PROFILES_FILE=/usr/local/share/middleware_profiles/rtps_udp_profile.xml"
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    volumes:
+      - "/tmp/.X11-unix:/tmp/.X11-unix"
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/dev/*:/dev/*"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    command: ros2 launch lio_sam run.launch.py
+  # lego-loam:
+  #   build:
+  #     context: /home/tms/Projects/black_plat/SLAM/LeGO-LOAM-ROS2/
+  #     dockerfile: /home/tms/Projects/black_plat/SLAM/LeGO-LOAM-ROS2/docker/Dockerfile
+  #   container_name: lego-loam
+  #   privileged: true
+  #   restart: always
+  #   stdin_open: true
+  #   tty: true
+  #   network_mode: host
+  #   dns:
+  #     - 1.1.1.1
+  #     - 1.0.0.1
+  #     - 8.8.8.8
+  #   environment:
+  #     - "DISPLAY=$DISPLAY"
+  #     - "NVIDIA_VISIBLE_DEVICES=all"
+  #     - "NVIDIA_DRIVER_CAPABILITIES=all"
+  #     - "FASTRTPS_DEFAULT_PROFILES_FILE=/usr/local/share/middleware_profiles/rtps_udp_profile.xml"
+  #     - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+  #   volumes:
+  #     - "/tmp/.X11-unix:/tmp/.X11-unix"
+  #     - "/etc/localtime:/etc/localtime:ro"
+  #     - "/etc/timezone:/etc/timezone:ro"
+  #     - "/dev/*:/dev/*"
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [ gpu ]
+  #   command: ros2 launch lego_loam_sr/home/tms/Projects/eurobot2026/EUROBOT_2026_PC/docker-compose.yaml /home/tms/Projects/eurobot2026/EUROBOT_2026_PC/Makefile run.launch.py
+  
