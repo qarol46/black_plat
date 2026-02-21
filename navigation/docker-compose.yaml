@@ -1,0 +1,38 @@
+name: nav2
+# ____________________________EXTENSTIONS___________________________
+x-env: &env
+  environment:
+    - DISPLAY=${DISPLAY}
+    - QT_X11_NO_MITSHM=1
+    #- RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
+    #- CYCLONEDDS_URI=${CYCLONEDDS_URI:-rmw_cyclonedds_cpp}
+    - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+x-vol: &vol
+  volumes:
+    - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+# ____________________________SERVICES___________________________
+services:  
+  nav2:
+    #platform: windows/amd64
+    #platform: linux/arm64/v8
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/navigation/t21_nav2/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/navigation/t21_nav2/docker/Dockerfile
+      additional_contexts:
+        t21-rviz2: "service:rviz2"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./navigation/ros2/t21_nav
+          target: /ros2_ws/src/
+        - action: sync+restart
+          path: ./data/rviz2
+          target: /data/rviz2 
+    network_mode: host
+    <<: [*env, *vol]
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    command: ros2 launch t21_nav2 navigation_nav2.launch.py

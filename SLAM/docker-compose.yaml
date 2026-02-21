@@ -101,3 +101,55 @@ services:
     pre_stop:
       - command: # TODO command to save map
     command: ros2 launch t21_cartographer cartographer.launch.py
+  # rtabmap:
+  #   build:
+  #     context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/t21_rtabmap/
+  #     dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/t21_rtabmap/docker/Dockerfile
+  #     additional_contexts:
+  #       t21-rviz2: "service:rviz2"
+  #   develop:
+  #     watch:
+  #       - action: rebuild
+  #         path: ./SLAM/t21_rtabmap/ros2
+  #         target: /ros2_ws/src
+  #         ignore:
+  #           - config/
+  #           - README.md
+  #       - action: sync+restart
+  #         path: ./SLAM/t21_rtabmap/ros2/config
+  #         target: /ros2_ws/src/config
+  #   privileged: true
+  #   restart: always
+  #   stdin_open: true
+  #   tty: true
+  #   network_mode: host
+  #   <<: [*env, *vol, *deploy]
+  #   pre_stop:
+  #     - command: # TODO command to save map
+  #   command: ros2 launch t21_rtabmap t21_vslam.launch.py
+  slam_toolbox:
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/t21_slam_toolbox/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/t21_slam_toolbox/docker/Dockerfile
+      additional_contexts:
+        t21-rviz2: "service:rviz2"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./SLAM/t21_slam_toolbox/ros2
+          target: /ros2_ws/src
+          ignore:
+            - config/
+            - README.md
+        - action: sync+restart
+          path: ./SLAM/t21_slam_toolbox/ros2/config
+          target: /ros2_ws/src/config
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    network_mode: host
+    <<: [*env, *vol, *deploy]
+    pre_stop:
+      - command: # TODO command to save map
+    command: ros2 launch t21_slam_toolbox slam.launch.py

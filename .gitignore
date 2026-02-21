@@ -39,3 +39,5 @@ li_calib.zip
 plot_venv/
 __pycache__/
 imu_calib/
+
+COLCON_IGNORE
