@@ -1,4 +1,4 @@
-FROM osrf/ros:humble-desktop
+FROM ros:humble-ros-core
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8

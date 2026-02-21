@@ -39,8 +39,12 @@ RUN apt-get install -y \
     python3-colcon-common-extensions \
     libglew-dev \
     ros-$ROS_DISTRO-tf2-ros \
+    ros-$ROS_DISTRO-joy \
+    ros-$ROS_DISTRO-teleop-twist-keyboard \
     ros-$ROS_DISTRO-control-msgs \
     ros-$ROS_DISTRO-ros2-control \
+    ros-$ROS_DISTRO-control-toolbox \
+    ros-$ROS_DISTRO-ros2-control-test-assets \
     ros-$ROS_DISTRO-ros2-controllers \
     ros-$ROS_DISTRO-controller-manager \
     ros-$ROS_DISTRO-controller-interface \

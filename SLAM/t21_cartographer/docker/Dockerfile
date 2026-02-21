@@ -7,25 +7,21 @@ ENV TZ=Europe/Moscow
 
 ENV ROS_DISTRO=humble
 
-RUN apt-get update \
-    && apt-get install -y curl \
-    && curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - \
-    && apt-get update \
-    && apt install -y python3-colcon-common-extensions \
+RUN apt-get update && apt install -y python3-colcon-common-extensions \
+    && apt-get install -y ros-$ROS_DISTRO-navigation2 \
+    && apt-get install -y ros-$ROS_DISTRO-cartographer \
+    && apt-get install -y ros-$ROS_DISTRO-cartographer-ros \
+    && apt-get install -y ros-$ROS_DISTRO-tf2-ros \
     && apt-get install -y ros-$ROS_DISTRO-robot-localization \
     && apt-get install -y ros-$ROS_DISTRO-robot-state-publisher \
     && apt install -y ros-$ROS_DISTRO-perception-pcl \
   	&& apt install -y ros-$ROS_DISTRO-pcl-msgs \
-  	&& apt install -y ros-$ROS_DISTRO-xacro \
+    && apt install -y ros-$ROS_DISTRO-sensor-msgs \
+    && apt install -y ros-$ROS_DISTRO-geometry-msgs \
+    && apt install -y ros-$ROS_DISTRO-visualization-msgs \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update \
-    && apt install -y software-properties-common \
-    && add-apt-repository -y ppa:borglab/gtsam-release-4.1 \
-    && apt-get update \
-    && apt install -y libgtsam-dev libgtsam-unstable-dev \
-    && rm -rf /var/lib/apt/lists/*
-    
+
 SHELL ["/bin/bash", "-c"]
 
 COPY ./ros2 /ros2_ws/src

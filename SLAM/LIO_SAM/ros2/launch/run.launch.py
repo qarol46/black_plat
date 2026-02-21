@@ -10,7 +10,7 @@ def generate_launch_description():
 
     share_dir = get_package_share_directory('lio_sam')
     parameter_file = LaunchConfiguration('params_file')
-    xacro_path = os.path.join(get_package_share_directory('tracked_description'), 'urdf', 'tracked_robot.urdf.xacro')
+    #xacro_path = os.path.join(get_package_share_directory('tracked_description'), 'urdf', 'tracked_robot.urdf.xacro')
     rviz_config_file = os.path.join(share_dir, 'config', 'rviz2.rviz')
     slam_params_file = os.path.join(share_dir, 'config', 'mapper_params.yaml')
 
@@ -20,7 +20,7 @@ def generate_launch_description():
             share_dir, 'config', 'params.yaml'),
         description='FPath to the ROS2 parameters file to use.')
 
-    print("urdf_file_name : {}".format(xacro_path))
+    #print("urdf_file_name : {}".format(xacro_path))
 
     return LaunchDescription([
         params_declare,
@@ -38,15 +38,15 @@ def generate_launch_description():
         #     parameters=[parameter_file],
         #     output='screen'
         #     ),
-        Node(
-            package='robot_state_publisher',
-            executable='robot_state_publisher',
-            name='robot_state_publisher',
-            output='screen',
-            parameters=[{
-                'robot_description': Command(['xacro', ' ', xacro_path])
-            }]
-        ),
+        # Node(
+        #     package='robot_state_publisher',
+        #     executable='robot_state_publisher',
+        #     name='robot_state_publisher',
+        #     output='screen',
+        #     parameters=[{
+        #         'robot_description': Command(['xacro', ' ', xacro_path])
+        #     }]
+        # ),
         Node(
             package='lio_sam',
             executable='lio_sam_imuPreintegration',
@@ -73,13 +73,6 @@ def generate_launch_description():
             executable='lio_sam_mapOptimization',
             name='lio_sam_mapOptimization',
             parameters=[parameter_file],
-            output='screen'
-        ),
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            arguments=['-d', rviz_config_file],
             output='screen'
         ),
         Node(

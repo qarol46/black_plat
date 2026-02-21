@@ -1,0 +1,23 @@
+name: rviz2
+version: '3.8'
+services:  
+  rviz2:
+    build:
+      context: /home/tms/Projects/black_plat/vizualization/rviz2
+      dockerfile: /home/tms/Projects/black_plat/vizualization/rviz2/docker/Dockerfile
+    image: rviz2:latest
+    network_mode: host
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      #- RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
+      #- CYCLONEDDS_URI=${CYCLONEDDS_URI:-rmw_cyclonedds_cpp}
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /home/tms/Projects/black_plat/data:/data
+      - /home/tms/Projects/black_plat/dds:/dds
+    privileged: true
+    stdin_open: true
+    tty: true
+    command: bash -c "rviz2 -d /data/rviz2/navigation.rviz" 

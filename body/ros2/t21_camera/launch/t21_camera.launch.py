@@ -5,7 +5,7 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from ament_index_python.packages import get_package_share_directory
 import os
 
-package_name='t21_rtabmap'
+package_name='t21_camera'
 
 def generate_launch_description():
     # Путь к YAML-файлу параметров

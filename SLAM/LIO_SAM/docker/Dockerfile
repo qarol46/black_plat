@@ -1,4 +1,4 @@
-FROM osrf/ros:humble-desktop-full-jammy
+FROM ros:humble-ros-core
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
@@ -13,6 +13,8 @@ RUN apt-get update \
     && apt-get update \
     && apt install -y python3-colcon-common-extensions \
     && apt-get install -y ros-$ROS_DISTRO-navigation2 \
+    && apt-get install -y ros-$ROS_DISTRO-slam-toolbox \
+    && apt-get install -y ros-$ROS_DISTRO-pointcloud-to-laserscan \
     && apt-get install -y ros-$ROS_DISTRO-robot-localization \
     && apt-get install -y ros-$ROS_DISTRO-robot-state-publisher \
     && apt install -y ros-$ROS_DISTRO-perception-pcl \

@@ -1,3 +1,5 @@
+name: body
+version: '3.8'
 services:
   body:
     build:
@@ -16,9 +18,36 @@ services:
     devices:  
       - /dev/bus/usb:/dev/bus/usb
       - /dev/video0:/dev/video0
+      - /dev/input:/dev/input 
     privileged: true
     stdin_open: true
     tty: true
+    depends_on:
+      - teleop
     command: ros2 launch tracked_description bringup_t21.launch.py
-
+  teleop:
+    build:
+      context: /home/tms/Projects/black_plat/body/
+      dockerfile: /home/tms/Projects/black_plat/body/docker/Dockerfile
+    network_mode: host
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    volumes:
+      - /dev:/dev:ro  
+    devices:  
+      - /dev/input:/dev/input 
+    stdin_open: true
+    tty: true
+    command: ros2 launch t21_teleop joy_platform_teleop.launch.py
+  power_monitor:
+    build:
+      context: /home/tms/Projects/black_plat/body/
+      dockerfile: /home/tms/Projects/black_plat/body/docker/Dockerfile
+    network_mode: host
+    environment:
+      - DISPLAY=${DISPLAY}
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    stdin_open: true
+    tty: true
+    command: ros2 launch power_monitor battery_monitor.launch.py
   

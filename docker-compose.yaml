@@ -1,3 +1,5 @@
+name: t_21 #COMPOSE_PROJECT_NAME
+version: '3.8'
 include:
   #_____________________________________Body_____________________________________
   - ${ROOT_DIR}/body/docker-compose.yaml
@@ -7,3 +9,11 @@ include:
   # - ${ROOT_DIR}/navigation/docker-compose.yaml
   # #_____________________________________Stuff_______________________________________
   # - ${ROOT_DIR}/stuff/docker-compose.yaml
+  #_____________________________________RVIZ2__________________________________
+  - ${ROOT_DIR}/vizualization/docker-compose.yaml
+
+  # Chose servises to run by using profiles instaed of makefile
+#COMPOSE_PROFILES=frontend,debug
+# COMPOSE_REMOVE_ORPHANS=true
+#environment:
+#  - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
