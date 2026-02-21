@@ -1,23 +1,33 @@
 name: rviz2
-version: '3.8'
+# ____________________________EXTENSTIONS___________________________
+x-env: &env
+  environment:
+    - DISPLAY=${DISPLAY}
+    - QT_X11_NO_MITSHM=1
+    #- RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
+    #- CYCLONEDDS_URI=${CYCLONEDDS_URI:-rmw_cyclonedds_cpp}
+    - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+x-vol: &vol
+  volumes:
+    - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+# ____________________________SERVICES___________________________
 services:  
   rviz2:
+    #platform: windows/amd64
+    #platform: linux/arm64/v8
     build:
-      context: /home/tms/Projects/black_plat/vizualization/rviz2
-      dockerfile: /home/tms/Projects/black_plat/vizualization/rviz2/docker/Dockerfile
-    image: rviz2:latest
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/visualization/rviz2
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/visualization/rviz2/docker/Dockerfile
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./data/rviz2
+          target: /data/rviz2 
     network_mode: host
-    environment:
-      - DISPLAY=${DISPLAY}
-      - QT_X11_NO_MITSHM=1
-      #- RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
-      #- CYCLONEDDS_URI=${CYCLONEDDS_URI:-rmw_cyclonedds_cpp}
-      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - /home/tms/Projects/black_plat/data:/data
-      - /home/tms/Projects/black_plat/dds:/dds
+    <<: [*env, *vol]
     privileged: true
+    restart: always
     stdin_open: true
     tty: true
     command: bash -c "rviz2 -d /data/rviz2/navigation.rviz" 

@@ -1,4 +1,4 @@
-FROM ros:humble-ros-base
+FROM t21-rviz2
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
@@ -32,13 +32,7 @@ RUN apt-get install -y librealsense2-utils
 
 # Install base dependencies
 RUN apt-get install -y \
-    build-essential \
-    cmake \
-    python3 \
-    python3-pip \
-    python3-colcon-common-extensions \
-    libglew-dev \
-    ros-$ROS_DISTRO-tf2-ros \
+
     ros-$ROS_DISTRO-joy \
     ros-$ROS_DISTRO-teleop-twist-keyboard \
     ros-$ROS_DISTRO-control-msgs \
@@ -51,16 +45,12 @@ RUN apt-get install -y \
     ros-$ROS_DISTRO-controller-manager-msgs \
     ros-$ROS_DISTRO-diff-drive-controller \
     ros-$ROS_DISTRO-hardware-interface \
-    ros-$ROS_DISTRO-xacro \
-    ros-$ROS_DISTRO-robot-state-publisher \
     ros-$ROS_DISTRO-joint-limits \
-    ros-$ROS_DISTRO-joint-state-publisher \
     ros-$ROS_DISTRO-joint-state-broadcaster \
     ros-$ROS_DISTRO-joint-trajectory-controller \
     ros-$ROS_DISTRO-admittance-controller \
     ros-$ROS_DISTRO-twist-mux \
     ros-$ROS_DISTRO-twist-mux-msgs \
-    #ros-$ROS_DISTRO-rmw-cyclonedds-cpp \
     ros-$ROS_DISTRO-librealsense2 \
     ros-$ROS_DISTRO-realsense2-camera \
     ros-$ROS_DISTRO-realsense2-camera-msgs \

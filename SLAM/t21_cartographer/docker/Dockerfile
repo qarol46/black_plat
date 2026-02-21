@@ -1,4 +1,4 @@
-FROM ros:humble-ros-core
+FROM t21-rviz2
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
@@ -7,13 +7,11 @@ ENV TZ=Europe/Moscow
 
 ENV ROS_DISTRO=humble
 
-RUN apt-get update && apt install -y python3-colcon-common-extensions \
+RUN apt-get update \
     && apt-get install -y ros-$ROS_DISTRO-navigation2 \
     && apt-get install -y ros-$ROS_DISTRO-cartographer \
     && apt-get install -y ros-$ROS_DISTRO-cartographer-ros \
-    && apt-get install -y ros-$ROS_DISTRO-tf2-ros \
     && apt-get install -y ros-$ROS_DISTRO-robot-localization \
-    && apt-get install -y ros-$ROS_DISTRO-robot-state-publisher \
     && apt install -y ros-$ROS_DISTRO-perception-pcl \
   	&& apt install -y ros-$ROS_DISTRO-pcl-msgs \
     && apt install -y ros-$ROS_DISTRO-sensor-msgs \
