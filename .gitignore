@@ -23,3 +23,9 @@ bluespace_ai_xsens_ros_mti_driver.tar.xz
 src/direct_lidar_inertial_odometry.zip
 src/velodyne_simulator/
 src/t21_teleop/t21_teleop/__pycache__/
+output_csv/
+test.py
+*.ods
+control_log_csv/
+analysis_plots/
+analyze_logs.py

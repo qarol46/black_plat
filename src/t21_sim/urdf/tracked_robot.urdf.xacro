@@ -179,7 +179,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="file://$(find t21_sim)/meshes/camera_base_link.STL" />
+          filename="file://$(find t21_sim)/meshes/camera_mount.STL" />
       </geometry>
       <material
         name="">
@@ -193,7 +193,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="file://$(find t21_sim)/meshes/camera_base_link.STL" />
+          filename="file://$(find t21_sim)/meshes/camera_mount.STL" />
       </geometry>
     </collision>
   </link>
