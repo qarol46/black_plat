@@ -8,7 +8,7 @@ ROOT_DIR := $(MKFILE_DIR)
 
 # Параметры окружения (можно переопределить при вызове make)
 DISPLAY ?= :0
-ROS_DOMAIN_ID ?= 17
+ROS_DOMAIN_ID ?= 19
 RMW_IMPLEMENTATION ?= rmw_cyclonedds_cpp
 CYCLONEDDS_URI ?= /dds/cyclonedds.xml
 
@@ -28,8 +28,8 @@ EXTRA_COMPOSE_FILES ?=
 BODY_COMPOSE := $(wildcard $(ROOT_DIR)/body/docker-compose.yaml)
 SLAM_COMPOSE := $(wildcard $(ROOT_DIR)/SLAM/docker-compose.yaml)
 NAVIGATION_COMPOSE := $(wildcard $(ROOT_DIR)/navigation/docker-compose.yaml)
-STUFF_COMPOSE := $(wildcard $(ROOT_DIR)/stuff/docker-compose.yaml)
-VIZ_COMPOSE   := $(wildcard $(ROOT_DIR)/vizualization/docker-compose.yaml)
+SIM_COMPOSE := $(wildcard $(ROOT_DIR)/simulation/docker-compose.yaml)
+VIZ_COMPOSE   := $(wildcard $(ROOT_DIR)/visualization/docker-compose.yaml)
 
 # Базовый compose файл (корневой)
 COMPOSE_BASE := -f $(ROOT_DIR)/docker-compose.yaml
@@ -51,20 +51,15 @@ ifneq ($(filter navigation,$(COMPONENTS)),)
         COMPOSE_FILES += -f $(NAVIGATION_COMPOSE)
     endif
 endif
-ifneq ($(filter stuff,$(COMPONENTS)),)
-    ifneq ($(STUFF_COMPOSE),)
-        COMPOSE_FILES += -f $(STUFF_COMPOSE)
+ifneq ($(filter simulation,$(COMPONENTS)),)
+    ifneq ($(SIM_COMPOSE),)
+        COMPOSE_FILES += -f $(SIM_COMPOSE)
     endif
 endif
 ifneq ($(filter viz,$(COMPONENTS)),)
     ifneq ($(VIZ_COMPOSE),)
         COMPOSE_FILES += -f $(VIZ_COMPOSE)
     endif
-endif
-
-# Добавляем пользовательские compose файлы
-ifneq ($(EXTRA_COMPOSE_FILES),)
-    COMPOSE_FILES += $(EXTRA_COMPOSE_FILES)
 endif
 
 # ============================================================================ #
@@ -129,7 +124,7 @@ shell:
 # ============================================================================ #
 
 # Body
-.PHONY: build-body up-body down-body
+.PHONY: build-body up-body down-body run-body
 build-body: COMPONENTS = body
 build-body: build
 up-body: COMPONENTS = body
