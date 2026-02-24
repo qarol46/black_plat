@@ -19,11 +19,6 @@ services:
     build:
       context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/visualization/rviz2
       dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/visualization/rviz2/docker/Dockerfile
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./data/rviz2
-          target: /data/rviz2 
     network_mode: host
     <<: [*env, *vol]
     privileged: true
