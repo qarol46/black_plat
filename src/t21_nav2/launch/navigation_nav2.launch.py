@@ -3,17 +3,14 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, SetEnvironmentVariable
-from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration, PythonExpression, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from launch_ros.actions import LoadComposableNodes, Node, PushRosNamespace, SetParameter
-from launch_ros.descriptions import ComposableNode, ParameterFile
+from launch_ros.actions import Node, PushRosNamespace
 from nav2_common.launch import RewrittenYaml
 
 package_name = 't21_nav2'
 
 def generate_launch_description():
-    bringup_dir = get_package_share_directory(package_name)
     
     namespace = LaunchConfiguration('namespace')
     use_sim_time = LaunchConfiguration('use_sim_time')
@@ -23,6 +20,7 @@ def generate_launch_description():
     log_level = LaunchConfiguration('log_level')
     
     lifecycle_nodes = [
+        #'collision_monitor',
         'controller_server',
         'smoother_server',
         'planner_server',
@@ -32,8 +30,9 @@ def generate_launch_description():
         'waypoint_follower',
     ]
     
-    #remappings = [('/tf', 'tf'), ('/tf_static', 'tf_static'), ('/cmd_vel', '/diff_drive_controller/cmd_vel_unstamped')]
-    
+    remappings = [('/tf', 'tf'), ('/tf_static', 'tf_static'), ('/cmd_vel', 'cmd_vel_nav')]
+    #remappings = [('/tf', 'tf'), ('/tf_static', 'tf_static'), ('/cmd_vel', 'cmd_vel_nav'), ('/cmd_vel_smoothed', '/diff_drive_controller/cmd_vel_unstamped')]
+
     param_substitutions = {
         'use_sim_time': use_sim_time,
         'autostart': autostart,
@@ -55,16 +54,22 @@ def generate_launch_description():
 
     declare_params_file_cmd = DeclareLaunchArgument(
         'params_file',
-        default_value=os.path.join(get_package_share_directory(package_name), 'config', 'navigation_mppi.yaml'),
+        default_value=os.path.join(get_package_share_directory(package_name), 'config', 'navigation_rpp.yaml'),
         description='Full path to the ROS2 parameters file to use for all launched nodes',
     )
     
     params_file_full = PathJoinSubstitution([
         FindPackageShare(package_name),
         'config',
-        LaunchConfiguration('params_file')
+        params_file
     ])
     
+    params_file_collision = PathJoinSubstitution([
+        FindPackageShare(package_name),
+        'config',
+        'collision_monitor.yaml'
+    ])
+
     declare_autostart_cmd = DeclareLaunchArgument(
         'autostart',
         default_value='true',
@@ -93,6 +98,16 @@ def generate_launch_description():
     load_nodes = GroupAction(
         actions=[
             PushRosNamespace(namespace=namespace),
+            Node(
+                package='nav2_collision_monitor',
+                executable='collision_monitor',
+                name='collision_monitor',
+                output='screen',
+                emulate_tty=True,
+                remappings=remappings,
+                arguments=['--ros-args', '--log-level', log_level],
+                parameters=[params_file_collision, {'use_sim_time': use_sim_time}]
+            ),
             Node(
                 package='nav2_controller',
                 executable='controller_server',
@@ -134,7 +149,7 @@ def generate_launch_description():
                 respawn_delay=2.0,
                 parameters=[configured_params],
                 arguments=['--ros-args', '--log-level', log_level],
-                remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+                remappings=remappings,
             ),
             Node(
                 package='nav2_bt_navigator',
@@ -167,7 +182,7 @@ def generate_launch_description():
                 respawn_delay=2.0,
                 parameters=[configured_params],
                 arguments=['--ros-args', '--log-level', log_level],
-                remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+                remappings=remappings,
             ),
             Node(
                 package='nav2_lifecycle_manager',
@@ -179,6 +194,12 @@ def generate_launch_description():
                     {'autostart': autostart},
                     {'node_names': lifecycle_nodes}
                 ],
+            ),
+            Node(
+                package='t21_nav2',
+                executable='speed_constraint',
+                name='SpeedConstraint',
+                output='screen',
             ),
         ]
     )

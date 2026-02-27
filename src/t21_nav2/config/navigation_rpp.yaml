@@ -1,10 +1,12 @@
+# Из-за погрешностей локализации при большом повороте на целевую ориентацию вблизи целевой точки робот начиначет постоянно
+# переключаться между режимами поворота на целевую ориентацию и поворота для выравнивания вдоль пути
 bt_navigator:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     global_frame: map
     robot_base_frame: base_link
     odom_topic: /lio_sam/mapping/odometry
-    default_nav_to_pose_bt_xml: "/home/danil/t21_ws/black_plat_nav/src/t21_nav2/BT/custom_navigate_w_replanning.xml"
+    default_nav_to_pose_bt_xml: "/home/tms/Projects/black_plat/src/t21_nav2/BT/custom_navigate_w_replanning.xml"
     #default_nav_through_poses_bt_xml: "/home/danil/t21_ws/black_plat/src/t21_nav2/BT/custom_navigate_w_replanning.xml"
     bt_loop_duration: 20
     default_server_timeout: 10
@@ -79,9 +81,17 @@ bt_navigator:
     
 controller_server:
   ros__parameters:
+    use_sim_time: False
     controller_frequency: 20.0
-    min_theta_velocity_threshold: 0.3
+    progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["goal_checker"]
+    controller_plugins: ["FollowPath"]
+
+    progress_checker:
+      plugin: "nav2_controller::PoseProgressChecker"
+      required_movement_radius: 0.3
+      required_movement_angle: 0.3
+      movement_time_allowance: 15.0
     goal_checker:
         plugin: "nav2_controller::SimpleGoalChecker"
         xy_goal_tolerance: 0.1
@@ -89,112 +99,33 @@ controller_server:
         path_length_tolerance: 1.5
         stateful: True
     FollowPath:
-      plugin: "nav2_mppi_controller::MPPIController"
-      time_steps: 56
-      model_dt: 0.05
-      batch_size: 2000
-      vx_std: 0.5
-      vy_std: 0.0
-      wz_std: 0.4
-      vx_max: 0.4
-      vx_min: -0.4
-      vy_max: 0.0
-      wz_max: 0.5
-      ax_max: 1.0
-      ax_min: -1.0
-      ay_min: 0.0
-      ay_max: 0.0
-      az_max: 1.0
-      iteration_count: 1
-      temperature: 0.3
-      gamma: 0.015
-      motion_model: "DiffDrive"
-      visualize: true
-      publish_optimal_trajectory: true
-      reset_period: 1.0 # (only in Humble)
-      regenerate_noises: false
-      TrajectoryVisualizer:
-        trajectory_step: 8
-        time_step: 5
-      TrajectoryValidator:
-        plugin: "mppi::DefaultOptimalTrajectoryValidator"
-        collision_lookahead_time: 3.0
-        consider_footprint: true
-      critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "PathAngleCritic", "PreferForwardCritic"]
-      ConstraintCritic:
-        enabled: false
-        cost_power: 1
-        cost_weight: 4.0
-      GoalCritic:
-        enabled: true
-        cost_power: 2
-        cost_weight: 5.0
-        threshold_to_consider: 2.0
-      GoalAngleCritic:
-        enabled: true
-        cost_power: 2
-        cost_weight: 4.0
-        threshold_to_consider: 0.2
-      PreferForwardCritic:
-        enabled: true
-        cost_power: 1
-        cost_weight: 5.0
-        threshold_to_consider: 1.0
-      # ObstaclesCritic:
-      #    enabled: false
-      #    cost_power: 2
-      #    cost_weight: 50.0
-      #    repulsion_weight: 50.0
-      #    critical_weight: 2000.0
-      #    consider_footprint: true
-      #    collision_cost: 100000.0
-      #    collision_margin_distance: 0.5
-      #    near_goal_distance: 0.5
-      #    inflation_radius: 0.5 # (only in Humble)
-      #    cost_scaling_factor: 0.1 # (only in Humble)
-      CostCritic:
-        enabled: true
-        cost_power: 3
-        cost_weight: 15.0
-        near_collision_cost: 40.0
-        critical_cost: 50.0
-        consider_footprint: true
-        collision_cost: 70.0
-        near_goal_distance: 0.5
-        trajectory_point_step: 1
-      PathAlignCritic:
-        enabled: true
-        cost_power: 2
-        cost_weight: 10.0
-        max_path_occupancy_ratio: 0.1
-        trajectory_point_step: 4
-        threshold_to_consider: 0.5
-        offset_from_furthest: 20
-        use_path_orientations: true
-      PathFollowCritic:
-        enabled: true
-        cost_power: 2
-        cost_weight: 7.0
-        offset_from_furthest: 15
-        threshold_to_consider: 1.5
-      PathAngleCritic:
-        enabled: true
-        cost_power: 1
-        cost_weight: 4.0
-        offset_from_furthest: 10
-        threshold_to_consider: 0.5
-        max_angle_to_furthest: 0.2
-        mode: 0
-      # VelocityDeadbandCritic:
-      #   enabled: true
-      #   cost_power: 1
-      #   cost_weight: 35.0
-      #   deadband_velocities: [0.05, 0.05, 0.05]
-      # TwirlingCritic:
-      #   enabled: true
-      #   twirling_cost_power: 1
-      #   twirling_cost_weight: 10.0
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+      footprint_cost_threshold: 2.0
+      desired_linear_vel: 0.1
+      lookahead_dist: 1.0
+      min_lookahead_dist: 0.4
+      max_lookahead_dist: 1.0
+      lookahead_time: 1.0
+      rotate_to_heading_angular_vel: 1.0
+      transform_tolerance: 0.01
+      use_velocity_scaled_lookahead_dist: true
+      min_approach_linear_velocity: 0.1
+      approach_velocity_scaling_dist: 2.0
+      use_collision_detection: true
+      max_allowed_time_to_collision_up_to_carrot: 0.5
+      use_regulated_linear_velocity_scaling: true
+      use_cost_regulated_linear_velocity_scaling: true
+      regulated_linear_scaling_min_radius: 0.0
+      regulated_linear_scaling_min_speed: 0.1
+      use_rotate_to_heading: true
+      rotate_to_heading_min_angle: 0.25
+      max_angular_accel: 0.2
+      use_interpolation: true
+      cost_scaling_dist: 0.5
+      cost_scaling_gain: 0.75
+      inflation_cost_scaling_factor: 3.0
       
+
 
 local_costmap:
   local_costmap:
@@ -203,14 +134,14 @@ local_costmap:
       publish_frequency: 15.0
       global_frame: odom
       robot_base_frame: base_link
-      use_sim_time: true
+      use_sim_time: False
       rolling_window: true
       width: 5
       height: 5
       resolution: 0.01
       use_maximum: true
       trinary_costmap: false
-      #lethal_cost_threshold: 50
+      #lethal_cost_threshold: 200
       footprint: "[[0.25,0.15],[0.25,-0.15],[-0.25,-0.15],[-0.25,0.15]]"
       robot_radius: 0.0
       plugins: ["obstacle_layer", "inflation_layer"]
@@ -228,7 +159,7 @@ local_costmap:
             raytrace_max_range: 0.6
             raytrace_min_range: 0.0
             max_obstacle_height: 0.5
-            min_obstacle_height: -0.1
+            min_obstacle_height: 0.1
             clearing: false
             marking: true
             data_type: "PointCloud2"
@@ -236,8 +167,8 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: True
-        inflation_radius: 0.4
-        cost_scaling_factor: 4.0
+        inflation_radius: 0.5
+        cost_scaling_factor: 5.0
         inflate_unknown: False
         inflate_around_unknown: False     
       introspection_mode: "disabled"
@@ -246,7 +177,7 @@ local_costmap:
 global_costmap:
   global_costmap:
     ros__parameters:
-        use_sim_time: True
+        use_sim_time: False
         update_frequency: 1.0
         publish_frequency: 2.0
         global_frame: map
@@ -277,7 +208,7 @@ global_costmap:
             raytrace_max_range: 30.0
             raytrace_min_range: 0.0
             max_obstacle_height: 0.5
-            min_obstacle_height: 0.0
+            min_obstacle_height: 0.1
             clearing: True
             marking: True
             data_type: "PointCloud2"
@@ -296,10 +227,10 @@ global_costmap:
           observation_sources: pointcloud
           combination_method: 1
           pointcloud:  # no frame set, uses frame from message
-            topic: /velodyne_points
+            topic: /lio_sam/mapping/cloud_registered
             qos: "sensor_data"  # BEST_EFFORT + VOLATILE
             max_obstacle_height: 0.5
-            min_obstacle_height: -0.1
+            min_obstacle_height: 0.1
             obstacle_max_range: 5.0
             obstacle_min_range: 0.5
             raytrace_max_range: 3.0
@@ -327,22 +258,66 @@ global_costmap:
 
 map_saver:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     save_map_timeout: 5.0
     free_thresh_default: 0.25
     occupied_thresh_default: 0.65
     map_subscribe_transient_local: True
 
+# planner_server:
+#   ros__parameters:
+#     expected_planner_frequency: 20.0
+#     use_sim_time: False
+#     planner_plugins: ["GridBased"]
+#     GridBased:             
+#         plugin: "nav2_navfn_planner/NavfnPlanner" # In Iron and older versions, "/" was used instead of "::"
+#         tolerance: 0.1
+#         use_astar: false
+#         allow_unknown: True
+
 planner_server:
   ros__parameters:
-    expected_planner_frequency: 20.0
-    use_sim_time: True
     planner_plugins: ["GridBased"]
-    GridBased:             
-        plugin: "nav2_navfn_planner/NavfnPlanner" # In Iron and older versions, "/" was used instead of "::"
-        tolerance: 0.1
-        use_astar: false
-        allow_unknown: True
+    GridBased:
+      plugin: "nav2_smac_planner/SmacPlanner2D" # In Iron and older versions, "/" was used instead of "::"
+      tolerance: 0.2                       # tolerance for planning if unable to reach exact pose, in meters
+      downsample_costmap: true             # whether or not to downsample the map
+      downsampling_factor: 2                # multiplier for the resolution of the costmap layer (e.g. 2 on a 5cm costmap would be 10cm)
+      allow_unknown: true                   # allow traveling in unknown space
+      max_iterations: 1000000               # maximum total iterations to search for before failing (in case unreachable), set to -1 to disable
+      max_on_approach_iterations: 10000      # maximum number of iterations to attempt to reach goal once in tolerance
+      max_planning_time: 5.0                # max time in s for planner to plan, smooth
+      cost_travel_multiplier: 3.0           # Cost multiplier to apply to search to steer away from high cost areas. Larger values will place in the center of aisles more exactly (if non-`FREE` cost potential field exists) but take slightly longer to compute. To optimize for speed, a value of 1.0 is reasonable. A reasonable tradeoff value is 2.0. A value of 0.0 effective disables steering away from obstacles and acts like a naive binary search A*.
+      use_final_approach_orientation: false # Whether to set the final path pose at the goal's orientation to the requested orientation (false) or in line with the approach angle so the robot doesn't rotate to heading (true)
+      
+# planner_server:
+#   ros__parameters:
+#     planner_plugins: ["GridBased"]
+#     use_sim_time: False
+
+#     GridBased:
+#       plugin: "nav2_smac_planner/SmacPlannerLattice"
+#       tolerance: 0.2                      # tolerance for planning if unable to reach exact pose, in meters
+#       downsample_costmap: false           # whether or not to downsample the map
+#       downsampling_factor: 1              # multiplier for the resolution of the costmap layer (e.g. 2 on a 5cm costmap would be 10cm)
+#       allow_unknown: true                # allow traveling in unknown space
+#       max_iterations: 1000000             # maximum total iterations to search for before failing (in case unreachable), set to -1 to disable
+#       max_on_approach_iterations: 10000    # maximum number of iterations to attempt to reach goal once in tolerance
+#       max_planning_time: 5.0              # max time in s for planner to plan, smooth, and upsample. Will scale maximum smoothing and upsampling times based on remaining time after planning.
+#       cost_travel_multiplier: 2.0         # For 2D: Cost multiplier to apply to search to steer away from high cost areas. Larger values will place in the center of aisles more exactly (if non-`FREE` cost potential field exists) but take slightly longer to compute. To optimize for speed, a value of 1.0 is reasonable. A reasonable tradeoff value is 2.0. A value of 0.0 effective disables steering away from obstacles and acts like a naive binary search A*.
+#       analytic_expansion_ratio: 0.01       # For Hybrid/Lattice nodes: The ratio to attempt analytic expansions during search for final approach.
+#       analytic_expansion_max_length: 1.0    # For Hybrid/Lattice nodes: The maximum length of the analytic expansion to be considered valid to prevent unsafe shortcutting (in meters). This should be scaled with minimum turning radius and be no less than 4-5x the minimum radius
+#       #minimum_turning_radius: 0.40        # For Hybrid/Lattice nodes: minimum turning radius in m of path / vehicle
+#       retrospective_penalty: 0.25        # For Hybrid/Lattice nodes: penalty to prefer later maneuvers before earlier along the path. Saves search time since earlier nodes are not expanded until it is necessary. Must be >= 0.0 and <= 1.0
+#       rotation_penalty: 0.1               # For Lattice node: Penalty to apply only to pure rotate in place commands when using minimum control sets containing rotate in place primitives. This should always be set sufficiently high to weight against this action unless strictly necessary for obstacle avoidance or there may be frequent discontinuities in the plan where it requests the robot to rotate in place to short-cut an otherwise smooth path for marginal path distance savings.
+#       allow_reverse_expansion: true      # For Lattice nodes: Whether to expand state lattice graph in forward primitives or reverse as well, will double the branching factor at each step.   
+#       smooth_path: false                   # For Lattice/Hybrid nodes: Whether or not to smooth the path, always true for 2D nodes.
+#       smoother:
+#         max_iterations: 5000
+#         w_smooth: 0.3
+#         w_data: 0.2
+#         tolerance: 1.0e-10
+#         do_refinement: true               # Whether to recursively run the smoother 3 times on the results from prior runs to refine the results further
 
 smoother_server:
   ros__parameters:
@@ -377,7 +352,7 @@ behavior_server:
     max_rotational_vel: 1.0
     min_rotational_vel: 0.4
     rotational_acc_lim: 3.2
-    use_sim_time: True
+    use_sim_time: False
     
 waypoint_follower:
   ros__parameters:

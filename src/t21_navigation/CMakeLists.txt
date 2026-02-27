@@ -48,9 +48,7 @@ install(TARGETS ground_filter_node
 
 install(DIRECTORY 
   launch 
-  config 
-  maps 
-  rviz 
+  config
   behavior_trees
   DESTINATION share/${PROJECT_NAME}
 )

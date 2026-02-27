@@ -1,0 +1,7 @@
+<library path="spin_towards_trajectory_plugin">
+  <class type="nav2_behavior_tree::SpinTowardsTrajectory" base_class_type="BT::ActionNodeBase">
+    <description>
+      Spin towards trajectory behavior tree node
+    </description>
+  </class>
+</library>
