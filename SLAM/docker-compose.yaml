@@ -4,13 +4,17 @@ x-env_slam: &env
     - "DISPLAY=$DISPLAY"
     - "NVIDIA_VISIBLE_DEVICES=all"
     - "NVIDIA_DRIVER_CAPABILITIES=all"
-    #- "FASTRTPS_DEFAULT_PROFILES_FILE=/usr/local/share/middleware_profiles/rtps_udp_profile.xml"
+    - "FASTRTPS_DEFAULT_PROFILES_FILE=/dds/fastdds_no_shm.xml"
     - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
 
 x-vol: &vol
   volumes:
     - /tmp/.X11-unix:/tmp/.X11-unix:rw
     - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+    - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+    - "/etc/localtime:/etc/localtime:ro"
+    - "/etc/timezone:/etc/timezone:ro"
+    - "/dev/*:/dev/*"
 
 x-deploy: &deploy
   deploy:
@@ -23,31 +27,33 @@ x-deploy: &deploy
 # ____________________________SERVICES___________________________
 services:
   lio-sam:
+    container_name: lio-sam
     build:
       context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LIO_SAM/
       dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LIO_SAM/docker/Dockerfile
       additional_contexts:
         t21-rviz2: "service:rviz2"
-    develop:
-      watch:
-        - action: rebuild
-          path: ./SLAM/LIO_SAM/ros2
-          target: /ros2_ws/src
-          ignore:
-            - config/
-        - action: sync+restart
-          path: SLAM/LIO_SAM/config
-          target: /ros2_ws/src/config
+    # develop:
+    #   watch:
+    #     - action: rebuild
+    #       path: ./SLAM/LIO_SAM/ros2
+    #       target: /ros2_ws/src
+    #       ignore:
+    #         - config/
+    #     - action: sync+restart
+    #       path: SLAM/LIO_SAM/config
+    #       target: /ros2_ws/src/config
     privileged: true
     restart: always
     stdin_open: true
     tty: true
-    network_mode: host
+    network_mode: host 
     <<: [*env, *vol, *deploy]
-    pre_stop:
-      - command: # TODO command to save map
+    #pre_stop:
+    #  - command: # TODO command to save map
     command: ros2 launch lio_sam run.launch.py
   lego-loam:
+    container_name: lego-loam
     build:
       context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LeGO-LOAM-ROS2/
       dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LeGO-LOAM-ROS2/docker/Dockerfile
@@ -76,6 +82,7 @@ services:
     - command: # TODO command to save map
     command: ros2 launch lego_loam_sr run.launch.py
   cartographer:
+    container_name: cartographer
     build:
       context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/t21_cartographer/
       dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/t21_cartographer/docker/Dockerfile
@@ -102,6 +109,7 @@ services:
       - command: # TODO command to save map
     command: ros2 launch t21_cartographer cartographer.launch.py
   # rtabmap:
+  #   container_name: rtabmap   
   #   build:
   #     context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/t21_rtabmap/
   #     dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/t21_rtabmap/docker/Dockerfile
@@ -128,6 +136,7 @@ services:
   #     - command: # TODO command to save map
   #   command: ros2 launch t21_rtabmap t21_vslam.launch.py
   slam_toolbox:
+    container_name: slam_toolbox
     build:
       context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/t21_slam_toolbox/
       dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/t21_slam_toolbox/docker/Dockerfile

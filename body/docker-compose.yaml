@@ -10,6 +10,7 @@ x-env: &env
 # ____________________________SERVICES___________________________
 services:
   body:
+    container_name: body
     build:
       context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/body/
       dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/body/docker/Dockerfile
@@ -35,11 +36,12 @@ services:
       - /dev/video0:/dev/video0
       - /dev/input:/dev/input 
     privileged: true
-    restart: always
+    #restart: always
     stdin_open: true
     tty: true
     command: ros2 launch tracked_description bringup_t21.launch.py
   teleop:
+    container_name: teleop
     depends_on:
       rviz2:
         condition: service_started
@@ -65,6 +67,7 @@ services:
     tty: true
     command: ros2 launch t21_teleop joy_platform_teleop.launch.py
   power_monitor:
+    container_name: power_monitor
     build:
       context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/body/
       dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/body/docker/Dockerfile

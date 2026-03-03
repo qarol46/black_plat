@@ -75,46 +75,46 @@ def generate_launch_description():
             parameters=[parameter_file],
             output='screen'
         ),
-        Node(
-            package='pointcloud_to_laserscan',
-            executable='pointcloud_to_laserscan_node',
-            name='pointcloud_to_laserscan',
-            parameters=[{
-                'min_height': 0.05,      
-                'max_height': 0.5,
-                'angle_min': -3.14159,   
-                'angle_max': 3.14159,   
-                'angle_increment': 0.0087, 
-                'scan_time': 0.1,
-                'range_min': 0.8,
-                'range_max': 40.0,       
-                'use_inf': True,
-                'inf_epsilon': 1.0,
-                'target_frame': 'base_link',
-                'transform_tolerance': 0.5,   
-                'concurrency_level': 1,
-                # QoS for publisher
-                #'qos_overrides./scan.publisher.reliability': 'best_effort',
-                #'qos_overrides./scan.publisher.durability': 'volatile',
-                #'qos_overrides./scan.publisher.depth': 50,
-            }],
-            remappings=[
-                ('cloud_in', '/lio_sam/deskew/cloud_deskewed'),
-                ('scan', '/scan_velodyne')
-            ],
-            output='screen'
-        ),
-        Node(
-            package='slam_toolbox',
-            executable='async_slam_toolbox_node',
-            name='slam_toolbox',
-            output='screen',
-            parameters=[slam_params_file],
-            remappings=[
-                ('scan', '/scan_velodyne'),
-                ('/odom', '/lio_sam/mapping/odometry'),
-                ('map', '/map'),
-                ('map_metadata', '/map_metadata')
-            ]
-        ),
+        # Node(
+        #     package='pointcloud_to_laserscan',
+        #     executable='pointcloud_to_laserscan_node',
+        #     name='pointcloud_to_laserscan',
+        #     parameters=[{
+        #         'min_height': 0.05,      
+        #         'max_height': 0.5,
+        #         'angle_min': -3.14159,   
+        #         'angle_max': 3.14159,   
+        #         'angle_increment': 0.0087, 
+        #         'scan_time': 0.1,
+        #         'range_min': 0.8,
+        #         'range_max': 40.0,       
+        #         'use_inf': True,
+        #         'inf_epsilon': 1.0,
+        #         'target_frame': 'base_link',
+        #         'transform_tolerance': 0.5,   
+        #         'concurrency_level': 1,
+        #         # QoS for publisher
+        #         #'qos_overrides./scan.publisher.reliability': 'best_effort',
+        #         #'qos_overrides./scan.publisher.durability': 'volatile',
+        #         #'qos_overrides./scan.publisher.depth': 50,
+        #     }],
+        #     remappings=[
+        #         ('cloud_in', '/lio_sam/deskew/cloud_deskewed'),
+        #         ('scan', '/scan_velodyne')
+        #     ],
+        #     output='screen'
+        # ),
+        # Node(
+        #     package='slam_toolbox',
+        #     executable='async_slam_toolbox_node',
+        #     name='slam_toolbox',
+        #     output='screen',
+        #     parameters=[slam_params_file],
+        #     remappings=[
+        #         ('scan', '/scan_velodyne'),
+        #         ('/odom', '/lio_sam/mapping/odometry'),
+        #         ('map', '/map'),
+        #         ('map_metadata', '/map_metadata')
+        #     ]
+        # ),
     ])

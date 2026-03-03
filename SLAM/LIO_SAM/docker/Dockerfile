@@ -1,4 +1,4 @@
-FROM t21-rviz2
+FROM osrf/ros:humble-desktop-full-jammy
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
@@ -11,15 +11,15 @@ RUN apt-get update \
     && apt-get install -y curl \
     && curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - \
     && apt-get update \
-    && apt-get install -y ros-$ROS_DISTRO-navigation2 \
     && apt-get install -y ros-$ROS_DISTRO-slam-toolbox \
     && apt-get install -y ros-$ROS_DISTRO-pointcloud-to-laserscan \
     && apt-get install -y ros-$ROS_DISTRO-robot-localization \
+    && apt-get install -y ros-$ROS_DISTRO-tf2-ros \ 
     && apt install -y ros-$ROS_DISTRO-perception-pcl \
   	&& apt install -y ros-$ROS_DISTRO-pcl-msgs \
   	&& apt install -y ros-$ROS_DISTRO-vision-opencv \
     && rm -rf /var/lib/apt/lists/*
-
+# delete tf2-ros
 RUN apt-get update \
     && apt install -y software-properties-common \
     && add-apt-repository -y ppa:borglab/gtsam-release-4.1 \
@@ -27,7 +27,7 @@ RUN apt-get update \
     && apt install -y libgtsam-dev libgtsam-unstable-dev \
     && rm -rf /var/lib/apt/lists/*
 
-SHELL ["/bin/bash", "-c"]
+# SHELL ["/bin/bash", "-c"]
 
 COPY ./ros2 /ros2_ws/src
 COPY ./docker/ros_entrypoint.sh /ros_entrypoint.sh

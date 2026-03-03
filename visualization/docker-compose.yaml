@@ -14,6 +14,7 @@ x-vol: &vol
 # ____________________________SERVICES___________________________
 services:  
   rviz2:
+    container_name: rviz2
     #platform: windows/amd64
     #platform: linux/arm64/v8
     build:
