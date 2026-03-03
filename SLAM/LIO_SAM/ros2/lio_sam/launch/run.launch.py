@@ -2,28 +2,33 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration, Command
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
-
 
 def generate_launch_description():
 
-    share_dir = get_package_share_directory('lio_sam')
+    env_path       = LaunchConfiguration('env_path')
     parameter_file = LaunchConfiguration('params_file')
-    #xacro_path = os.path.join(get_package_share_directory('tracked_description'), 'urdf', 'tracked_robot.urdf.xacro')
-    rviz_config_file = os.path.join(share_dir, 'config', 'rviz2.rviz')
-    slam_params_file = os.path.join(share_dir, 'config', 'mapper_params.yaml')
 
-    params_declare = DeclareLaunchArgument(
+    declare_env_path_cmd = DeclareLaunchArgument(
+        'env_path',
+        default_value='/data',
+        description='Root directory containing configs/, maps/, etc.',
+    )
+
+    declare_params_file_cmd = DeclareLaunchArgument(
         'params_file',
-        default_value=os.path.join(
-            share_dir, 'config', 'params.yaml'),
-        description='FPath to the ROS2 parameters file to use.')
-
-    #print("urdf_file_name : {}".format(xacro_path))
+        default_value=PathJoinSubstitution([
+            env_path, 'configs', 'slam', 'lio_sam_config', 'params.yaml'
+        ]),
+        description='Full path to the lio_sam parameters file.',
+    )
 
     return LaunchDescription([
-        params_declare,
+
+        declare_env_path_cmd,
+        declare_params_file_cmd,
+
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',
@@ -47,12 +52,19 @@ def generate_launch_description():
         #         'robot_description': Command(['xacro', ' ', xacro_path])
         #     }]
         # ),
+        # Node(
+        #     package='lio_sam',
+        #     executable='lio_sam_imuPreintegration',
+        #     name='lio_sam_imuPreintegration',
+        #     parameters=[parameter_file],
+        #     output='screen'
+        # ),
         Node(
             package='lio_sam',
-            executable='lio_sam_imuPreintegration',
-            name='lio_sam_imuPreintegration',
+            executable='lio_sam_wheelInertialPreintegration',
+            name='lio_sam_WI_Preintegration',
             parameters=[parameter_file],
-            output='screen'
+            output='screen',
         ),
         Node(
             package='lio_sam',
@@ -75,46 +87,4 @@ def generate_launch_description():
             parameters=[parameter_file],
             output='screen'
         ),
-        # Node(
-        #     package='pointcloud_to_laserscan',
-        #     executable='pointcloud_to_laserscan_node',
-        #     name='pointcloud_to_laserscan',
-        #     parameters=[{
-        #         'min_height': 0.05,      
-        #         'max_height': 0.5,
-        #         'angle_min': -3.14159,   
-        #         'angle_max': 3.14159,   
-        #         'angle_increment': 0.0087, 
-        #         'scan_time': 0.1,
-        #         'range_min': 0.8,
-        #         'range_max': 40.0,       
-        #         'use_inf': True,
-        #         'inf_epsilon': 1.0,
-        #         'target_frame': 'base_link',
-        #         'transform_tolerance': 0.5,   
-        #         'concurrency_level': 1,
-        #         # QoS for publisher
-        #         #'qos_overrides./scan.publisher.reliability': 'best_effort',
-        #         #'qos_overrides./scan.publisher.durability': 'volatile',
-        #         #'qos_overrides./scan.publisher.depth': 50,
-        #     }],
-        #     remappings=[
-        #         ('cloud_in', '/lio_sam/deskew/cloud_deskewed'),
-        #         ('scan', '/scan_velodyne')
-        #     ],
-        #     output='screen'
-        # ),
-        # Node(
-        #     package='slam_toolbox',
-        #     executable='async_slam_toolbox_node',
-        #     name='slam_toolbox',
-        #     output='screen',
-        #     parameters=[slam_params_file],
-        #     remappings=[
-        #         ('scan', '/scan_velodyne'),
-        #         ('/odom', '/lio_sam/mapping/odometry'),
-        #         ('map', '/map'),
-        #         ('map_metadata', '/map_metadata')
-        #     ]
-        # ),
     ])

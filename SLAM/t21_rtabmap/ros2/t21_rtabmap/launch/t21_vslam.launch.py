@@ -10,12 +10,10 @@ from ament_index_python.packages import get_package_share_directory
 
 def launch_setup(context, *args, **kwargs):
     
-    localization = LaunchConfiguration('localization')
-
-    rtabmap_package='t21_rtabmap'
-    
+    localization   = LaunchConfiguration('localization')
+    env_path       = LaunchConfiguration('env_path')
     use_sim_time = LaunchConfiguration("use_sim_time")
-    
+        
     # With the simulator, the imu is not published fast enough 
     # and have a huge delay, disabling imu usage from VO
     #use_imu = use_sim_time.perform(context) in ["false", "False"]
@@ -74,41 +72,53 @@ def launch_setup(context, *args, **kwargs):
         'subscribe_user_data': False,  # default_value='false'
     }
     
-    vslam_params = os.path.join(
-        get_package_share_directory(rtabmap_package),
-        'config',
-        'real_rtabmap.yaml' 
-    ) 
+    vslam_params = PathJoinSubstitution([
+        env_path,
+        'configs',
+        'slam',
+        'rtabmap_config',
+        'real_rtabmap.yaml'
+    ])
     
-    rgbd_odom_params = os.path.join(
-        get_package_share_directory(rtabmap_package),
-        'config',
+    rgbd_odom_params = PathJoinSubstitution([
+        env_path,
+        'configs',
+        'slam',
+        'rtabmap_config',
         'rgbd_odom_params.yaml'
-    )
+    ])
 
-    sync_params = os.path.join(
-        get_package_share_directory(rtabmap_package),
-        'config',
+    sync_params = PathJoinSubstitution([
+        env_path,
+        'configs',
+        'slam',
+        'rtabmap_config',
         'rgbd_sync_params.yaml'
-    )
+    ])
 
-    viz_params = os.path.join(
-        get_package_share_directory(rtabmap_package),
-        'config',
+    viz_params = PathJoinSubstitution([
+        env_path,
+        'configs',
+        'slam',
+        'rtabmap_config',
         'rtabmap_viz.yaml'
-    ) 
+    ]) 
 
-    pcl_params = os.path.join(
-        get_package_share_directory(rtabmap_package),
-        'config',
+    pcl_params = PathJoinSubstitution([
+        env_path,
+        'configs',
+        'slam',
+        'rtabmap_config',
         'pcl.yaml'
-    ) 
+    ])
 
-    obstacles_params = os.path.join(
-        get_package_share_directory(rtabmap_package),
-        'config',
+    obstacles_params = PathJoinSubstitution([
+        env_path,
+        'configs',
+        'slam',
+        'rtabmap_config',
         'obstacles_champ.yaml'
-    )
+    ])
     
     icp_odom_params = {
     'Reg/Strategy': '1',
@@ -248,6 +258,12 @@ def launch_setup(context, *args, **kwargs):
 def generate_launch_description():
     
     return LaunchDescription([
+        DeclareLaunchArgument(
+        'env_path',
+        default_value='/data',
+        description='Root directory containing configs/, maps/, etc.',
+        ),
+
         DeclareLaunchArgument(
             name='use_sim_time', 
             default_value='false',

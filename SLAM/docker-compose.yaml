@@ -105,9 +105,10 @@ services:
     tty: true
     network_mode: host
     <<: [*env, *vol, *deploy]
-    pre_stop:
-      - command: # TODO command to save map
+    #pre_stop:
+    #  - command: # TODO command to save map
     command: ros2 launch t21_cartographer cartographer.launch.py
+  # Craches when start container
   # rtabmap:
   #   container_name: rtabmap   
   #   build:

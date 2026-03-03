@@ -1,4 +1,4 @@
-FROM osrf/ros:humble-desktop-full-jammy
+FROM t21-rviz2
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8

@@ -10,38 +10,37 @@ from launch.substitutions import Command
 from launch_ros.actions import Node
 
 M_PI=3.14159265359
-package_name = 't21_navigation'
+package_name = 't21_slam_toolbox'
 def generate_launch_description():
     
-    translate = Node(
+    translate =  Node(
             package='pointcloud_to_laserscan',
             executable='pointcloud_to_laserscan_node',
             name='pointcloud_to_laserscan',
-            remappings=[
-                ('/cloud_in', '/velodyne_points'),  # Input pointcloud
-                ('/scan', '/scan') # Output laserscan
-            ],
             parameters=[{
-                # # CRITICAL FIX: Override QoS to match RViz2 requirements
-                'qos_overrides./scan.publisher.reliability': 'reliable',  # Force RELIABLE
-                'qos_overrides./scan.publisher.durability': 'volatile',
-                'qos_overrides./scan.publisher.history': 'keep_last',
-                'qos_overrides./scan.publisher.depth': 10,
-                'use_sim_time': LaunchConfiguration('use_sim_time'),  # Explicitly set
-                'allow_undeclared_parameters': True,
-                #'target_frame': 'velodyne',
-                #'transform_tolerance': 0.01,
-                'min_height': 0.1,  # Lowered to detect ground obstacles
-                'max_height': 2.0,
-                'angle_min': -M_PI,  # -M_PI/2
-                'angle_max': M_PI,  # M_PI/2
-                'angle_increment': 0.0087,  # 0.5° resolution //0.01545,  # ~1 degree resolution
-                'scan_time': 0.05,
-                'range_min': 0.5,
-                'range_max': 25.0,
+                'min_height': 0.05,      
+                'max_height': 0.5,
+                'angle_min': -3.14159,   
+                'angle_max': 3.14159,   
+                'angle_increment': 0.0087, 
+                'scan_time': 0.1,
+                'range_min': 0.8,
+                'range_max': 40.0,       
                 'use_inf': True,
-                'inf_epsilon': 0.1
-            }]
+                'inf_epsilon': 1.0,
+                'target_frame': 'base_link',
+                'transform_tolerance': 0.5,   
+                'concurrency_level': 1,
+                # QoS for publisher
+                #'qos_overrides./scan.publisher.reliability': 'best_effort',
+                #'qos_overrides./scan.publisher.durability': 'volatile',
+                #'qos_overrides./scan.publisher.depth': 50,
+            }],
+            remappings=[
+                ('cloud_in', '/lio_sam/deskew/cloud_deskewed'),
+                ('scan', '/scan_velodyne')
+            ],
+            output='screen'
     )
     ground_filter = Node(
     package=package_name,
