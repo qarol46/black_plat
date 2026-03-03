@@ -24,12 +24,12 @@ def generate_launch_description() -> LaunchDescription:
     )
     use_lidar_arg  = DeclareLaunchArgument(
         name = "use_lidar",
-        default_value = "False",
+        default_value = "True",
         description = "Use VLP-16" 
     )
     use_camera_arg = DeclareLaunchArgument(
         name="use_camera",
-        default_value="False",
+        default_value="True",
         description="Run RGBD camera nodes and enable URDF description"
     )
     use_imu_arg = DeclareLaunchArgument(

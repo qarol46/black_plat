@@ -42,7 +42,7 @@ ament_target_dependencies(cmd_vel_to_float
 install(TARGETS dummy cmd_vel_to_float
   DESTINATION lib/${PROJECT_NAME})
 
-install(DIRECTORY launch urdf mesh config
+install(DIRECTORY launch urdf config
   DESTINATION share/${PROJECT_NAME})
 
 # ── TESTS / LINT --------------------------------------------------------------
