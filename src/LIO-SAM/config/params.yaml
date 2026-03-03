@@ -1,7 +1,7 @@
 /**:
   ros__parameters:
 
-    use_sim_time: false
+    use_sim_time: true
     # TF
     publishOdomToLidarTF: false 
     publishOdomToBaseTF: true
@@ -43,7 +43,7 @@
     imuAccBiasN: 2.2243616549719533e-05 
     imuGyrBiasN: 4.296366466551408e-06
 
-    imuGravity: 9.80511
+    #imuGravity: 9.80511
     imuRPYWeight: 0.01
 
     # 0.165 0.0 0.139  0.0036 -2.29E-05 0.095

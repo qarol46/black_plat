@@ -184,9 +184,14 @@ T21TrackedHardware::read(const rclcpp::Time &, const rclcpp::Duration &period)
   state_[2] = geom_rad;
 
   // Интеграция позиций
-  const double dt = std::min(period.seconds(), 0.1);
-  left_pos_  += state_[0] * dt;
-  right_pos_ += state_[1] * dt;
+  double dt = period.seconds();
+  if (dt > 0.0 && dt < 0.5) {  
+    left_pos_  += state_[0] * dt;
+    right_pos_ += state_[1] * dt;
+  } else {
+      // Логируем проблему
+      RCLCPP_WARN_THROTTLE(rclcpp::get_logger("T21TrackedHardware"), throttle_clock, 1000, "dt вне стандартного диапазона: [%.2f]", dt);
+  }
 
   if (log_file_.is_open()) {
     log_file_ << "RECV, n/a, "

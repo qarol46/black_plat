@@ -700,8 +700,10 @@ public:
         double wheelTime = stamp2Sec(wheel.header.stamp);
         
         // If wheel odometry is too old, wait
-        if (imuTime - wheelTime > 0.1)
+        if (abs(imuTime - wheelTime) > 0.2){
+            RCLCPP_INFO(get_logger(), "Wheel odometry data too old");
             return;
+        }
             
         // Calculate dt
         double dt = (lastImuT_imu < 0) ? (1.0 / 500.0) : (imuTime - lastImuT_imu);
@@ -719,7 +721,7 @@ public:
             dt, gyro, wheelLinearX, wheelAngularZ);
         
         // Pop used wheel odometry (if timestamps match roughly)
-        if (abs(imuTime - wheelTime) < 0.01)
+        if (abs(imuTime - wheelTime) < 0.025)
         {
             wheelOdomQueImu.pop_front();
             lastWheelT_imu = wheelTime;
