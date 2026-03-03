@@ -10,19 +10,19 @@ cmake_policy(SET CMP0074 NEW)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
-# find_package(<dependency> REQUIRED)
-
-
 
 install(DIRECTORY 
   launch 
   config 
+  include
   BT
   DESTINATION share/${PROJECT_NAME}
+  DESTINATION include
 )
 
 ament_package()
