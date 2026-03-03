@@ -8,10 +8,10 @@ include:
   - ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/docker-compose.yaml
   #_____________________________________Navigation__________________________________
   - ${ROOT_DIR:-/home/tms/Projects/black_plat}/navigation/docker-compose.yaml
-  #_____________________________________Stuff_______________________________________
-  # - ${ROOT_DIR:-/home/tms/Projects/black_plat}/stuff/docker-compose.yaml
+  #_____________________________________Sim_______________________________________
+  - ${ROOT_DIR:-/home/tms/Projects/black_plat}/sim/docker-compose.yaml
 
 
-  # Chose servises to run by using profiles instaed of makefile
+# Chose servises to run by using profiles instaed of makefile
 #COMPOSE_PROFILES=frontend,debug
 # COMPOSE_REMOVE_ORPHANS=true

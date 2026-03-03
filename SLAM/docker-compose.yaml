@@ -12,8 +12,8 @@ x-vol: &vol
     - /tmp/.X11-unix:/tmp/.X11-unix:rw
     - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
     - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
-    - "/etc/localtime:/etc/localtime:ro"
-    - "/etc/timezone:/etc/timezone:ro"
+  #  - "/etc/localtime:/etc/localtime:ro"
+  #  - "/etc/timezone:/etc/timezone:ro"
     - "/dev/*:/dev/*"
 
 x-deploy: &deploy
