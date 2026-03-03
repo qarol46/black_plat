@@ -4,13 +4,16 @@ x-env_slam: &env
     - "DISPLAY=$DISPLAY"
     - "NVIDIA_VISIBLE_DEVICES=all"
     - "NVIDIA_DRIVER_CAPABILITIES=all"
-    #- "FASTRTPS_DEFAULT_PROFILES_FILE=/usr/local/share/middleware_profiles/rtps_udp_profile.xml"
+    - "FASTRTPS_DEFAULT_PROFILES_FILE=/dds/fastdds_no_shm.xml"
     - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    - QT_X11_NO_MITSHM=1
 
 x-vol: &vol
   volumes:
     - /tmp/.X11-unix:/tmp/.X11-unix:rw
     - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+    - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+    - "/dev/*:/dev/*"
 
 x-deploy: &deploy
   deploy:

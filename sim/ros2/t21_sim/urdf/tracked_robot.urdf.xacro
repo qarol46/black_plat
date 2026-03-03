@@ -198,7 +198,7 @@
     </collision>
   </link>
   <joint
-    name="camera_joint"
+    name="camera_base_joint"
     type="fixed">
     <origin
       xyz="0.148648549421411 -0.00168373549133136 0.0396301545012917"

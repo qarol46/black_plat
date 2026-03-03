@@ -8,7 +8,7 @@
   <xacro:include filename="$(find t21_sim)/config/t21.ros2_control.xacro"/>
     <!-- блок симуляции VLP-16-->
   <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
-  <xacro:VLP-16 parent="lidar_link" 
+  <xacro:VLP-16 parent="big_box_link" 
                 name="velodyne" 
                 topic="/velodyne_points" 
                 organize_cloud="true" 
@@ -20,7 +20,7 @@
                 min_angle="-3.14159265359"  
                 max_angle="3.14159265359" 
                 gpu="false">
-                <origin xyz="0 0 0" rpy="0 0 0" />
+                <origin xyz="0 0 0.085" rpy="0 0 0" />
    </xacro:VLP-16>
   
   <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro" />

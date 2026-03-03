@@ -82,18 +82,18 @@ def generate_launch_description():
     )
 
     # Запуск Controller Manager
-    control_node = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        parameters=[
-            os.path.join(
-                get_package_share_directory(package_name),
-                "config", "my_controllers.yaml"
-            ),
-           {"use_sim_time": LaunchConfiguration("use_sim_time")}  # Использование симуляционного времени
-        ],
-        output="screen",
-    )
+    # control_node = Node(
+    #     package="controller_manager",
+    #     executable="ros2_control_node",
+    #     parameters=[
+    #         os.path.join(
+    #             get_package_share_directory(package_name),
+    #             "config", "my_controllers.yaml"
+    #         ),
+    #        {"use_sim_time": LaunchConfiguration("use_sim_time")}  # Использование симуляционного времени
+    #     ],
+    #     output="screen",
+    # )
 
     # Загрузка и запуск контроллера для публикации состояний суставов
     joint_broad_spawner = Node(
@@ -159,7 +159,7 @@ def generate_launch_description():
         ),
         rsp,
         gazebo,
-        control_node,
+        # control_node,
         spawn_entity,
         diff_drive_spawner,
         joint_broad_spawner,
