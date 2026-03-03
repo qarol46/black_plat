@@ -47,8 +47,7 @@ install(TARGETS ground_filter_node
 )
 
 install(DIRECTORY 
-  launch 
-  config 
+  launch  
   DESTINATION share/${PROJECT_NAME}
 )
 
