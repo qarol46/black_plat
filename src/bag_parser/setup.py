@@ -27,6 +27,7 @@ setup(
     entry_points={
         'console_scripts': [
             'bag_parser_node = bag_parser.bag_parser_node:main',
+            'tf_to_csv_node = bag_parser.tf_to_csv_node:main',
         ],
     },
 )
