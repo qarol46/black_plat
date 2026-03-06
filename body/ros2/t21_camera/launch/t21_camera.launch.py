@@ -9,11 +9,19 @@ package_name='t21_camera'
 
 def generate_launch_description():
     # Путь к YAML-файлу параметров
-    default_params_file = os.path.join(
-        get_package_share_directory(package_name),
-        'config',
-        'camera.yaml'
+    declare_env_path = DeclareLaunchArgument(
+        'env_path',
+        default_value='/data',
+        description='Root directory containing configs/, maps/, etc.',
     )
+
+    default_params_file = PathJoinSubstitution([
+        LaunchConfiguration('env_path'),
+        'configs',
+        'body',
+        'camera_config',
+        'camera.yaml'
+    ])
     
     # Corrected remappings list
     # camera_remaps = [
@@ -44,6 +52,7 @@ def generate_launch_description():
     
     return LaunchDescription([
         # Аргументы для переопределения
+        declare_env_path,
         DeclareLaunchArgument('camera_name', default_value='camera'),
         DeclareLaunchArgument('camera_namespace', default_value=''),
         DeclareLaunchArgument('config_file', default_value=default_params_file),

@@ -19,7 +19,7 @@ def generate_launch_description():
     declare_params_file_cmd = DeclareLaunchArgument(
         'params_file',
         default_value=PathJoinSubstitution([
-            env_path, 'configs', 'slam', 'lio_sam_config', 'params.yaml'
+            env_path, 'configs', 'slam', 'lio-sam_config', 'params.yaml'
         ]),
         description='Full path to the lio_sam parameters file.',
     )

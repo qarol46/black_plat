@@ -15,15 +15,8 @@ find_package(rclcpp_lifecycle REQUIRED)
 
 # Установка launch- и конфигурационных файлов
 install(
-  DIRECTORY launch config
+  DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
-)
-
-# Установка YAML-файлов калибровки
-install(
-  FILES config/VLP16-velodyne_driver_node-params.yaml
-        config/VLP16-velodyne_transform_node-params.yaml
-  DESTINATION share/${PROJECT_NAME}/config
 )
 
 ament_export_dependencies(

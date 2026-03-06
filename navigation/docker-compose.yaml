@@ -11,6 +11,7 @@ x-vol: &vol
   volumes:
     - /tmp/.X11-unix:/tmp/.X11-unix:rw
     - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+    - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
 # ____________________________SERVICES___________________________
 services:  
   nav2:

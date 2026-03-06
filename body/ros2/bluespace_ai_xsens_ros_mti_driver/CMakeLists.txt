@@ -74,7 +74,7 @@ install(TARGETS xsens_mti_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY launch param rviz urdf
+install(DIRECTORY launch rviz urdf
   DESTINATION share/${PROJECT_NAME}
 )
 

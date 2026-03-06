@@ -1,226 +1,326 @@
 # ============================================================================ #
-#                             COMMON VARIABLES                                 #
+# _____________________________ COMMON VARIABLES _____________________________ #
 # ============================================================================ #
 
-MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
-MKFILE_DIR := $(dir $(MKFILE_PATH))
-ROOT_DIR := $(MKFILE_DIR)
+MKFILE_PATH   := $(abspath $(lastword $(MAKEFILE_LIST)))
+ROOT_DIR      := $(dir $(MKFILE_PATH))
 
-# Параметры окружения (можно переопределить при вызове make)
-DISPLAY ?= :0
-ROS_DOMAIN_ID ?= 19
-RMW_IMPLEMENTATION ?= rmw_cyclonedds_cpp
-CYCLONEDDS_URI ?= /dds/cyclonedds.xml
+DISPLAY       ?= :0
+ROS_DOMAIN_ID ?= 0
 
-# Выбор компонентов для запуска (через пробел: body slam viz ...)
-COMPONENTS ?= body
-
-# Выбор конкретного алгоритма SLAM (lio-sam или lego-loam)
-SLAM_SERVICE ?= lio-sam
-
-# Дополнительные файлы docker-compose (можно указать при вызове)
-EXTRA_COMPOSE_FILES ?=
+export DISPLAY ROS_DOMAIN_ID ROOT_DIR
 
 # ============================================================================ #
-#                     DETECT AVAILABLE COMPOSE FILES                           #
+# _________________________________ SERVICES _________________________________ #
 # ============================================================================ #
 
-BODY_COMPOSE := $(wildcard $(ROOT_DIR)/body/docker-compose.yaml)
-SLAM_COMPOSE := $(wildcard $(ROOT_DIR)/SLAM/docker-compose.yaml)
-NAVIGATION_COMPOSE := $(wildcard $(ROOT_DIR)/navigation/docker-compose.yaml)
-SIM_COMPOSE := $(wildcard $(ROOT_DIR)/simulation/docker-compose.yaml)
-VIZ_COMPOSE   := $(wildcard $(ROOT_DIR)/visualization/docker-compose.yaml)
+# Отдельные сервисы
+BODY_SERVICE          ?= body
+TELEOP_SERVICE        ?= teleop
+POWER_MONITOR_SERVICE ?= power_monitor
+RVIZ_SERVICE          ?= rviz2
+LIO_SAM_SERVICE       ?= lio-sam
+LEGO_LOAM_SERVICE     ?= lego-loam
+SLAM_TOOLBOX_SERVICE  ?= slam_toolbox
+CARTOGRAPHER_SERVICE  ?= cartographer
+NAV2_SERVICE          ?= nav2
+SIM_SERVICE           ?= sim
 
-# Базовый compose файл (корневой)
-COMPOSE_BASE := -f $(ROOT_DIR)/docker-compose.yaml
-COMPOSE_FILES := $(COMPOSE_BASE)
+# Группы сервисов
+BODY_SERVICES := $(BODY_SERVICE) $(TELEOP_SERVICE) $(POWER_MONITOR_SERVICE)
+SLAM_SERVICES := $(LIO_SAM_SERVICE) $(SLAM_TOOLBOX_SERVICE) $(CARTOGRAPHER_SERVICE)
+NAV_SERVICES  := $(NAV2_SERVICE)
+VIZ_SERVICES  := $(RVIZ_SERVICE)
+SIM_SERVICES  := $(SIM_SERVICE)
 
-# Добавляем файлы для выбранных компонентов
-ifneq ($(filter body,$(COMPONENTS)),)
-    ifneq ($(BODY_COMPOSE),)
-        COMPOSE_FILES += -f $(BODY_COMPOSE)
-    endif
-endif
-ifneq ($(filter slam,$(COMPONENTS)),)
-    ifneq ($(SLAM_COMPOSE),)
-        COMPOSE_FILES += -f $(SLAM_COMPOSE)
-    endif
-endif
-ifneq ($(filter navigation,$(COMPONENTS)),)
-    ifneq ($(NAVIGATION_COMPOSE),)
-        COMPOSE_FILES += -f $(NAVIGATION_COMPOSE)
-    endif
-endif
-ifneq ($(filter simulation,$(COMPONENTS)),)
-    ifneq ($(SIM_COMPOSE),)
-        COMPOSE_FILES += -f $(SIM_COMPOSE)
-    endif
-endif
-ifneq ($(filter viz,$(COMPONENTS)),)
-    ifneq ($(VIZ_COMPOSE),)
-        COMPOSE_FILES += -f $(VIZ_COMPOSE)
-    endif
-endif
+# Полный стек
+ALL_SERVICES  := $(BODY_SERVICES) $(SLAM_SERVICES) $(NAV_SERVICES) $(VIZ_SERVICES)
+
+# Сервисы для запуска (переопределяется при вызове make)
+SERVICES      ?= $(ALL_SERVICES)
 
 # ============================================================================ #
-#                            DOCKER COMPOSE COMMANDS                           #
+# _______________________________ DOCKER COMPOSE _____________________________ #
 # ============================================================================ #
 
-DC := docker compose $(COMPOSE_FILES)
-DC_BUILD := $(DC) build
-DC_UP := $(DC) up -d
-DC_DOWN := $(DC) down
-DC_LOGS := $(DC) logs -f
-DC_PS := $(DC) ps
-DC_EXEC := $(DC) exec
-
-# Экспортируем переменные окружения для docker compose
-export DISPLAY ROS_DOMAIN_ID ROOT_DIR #RMW_IMPLEMENTATION CYCLONEDDS_URI
+DC := docker compose
 
 # ============================================================================ #
-#                              HELPER TARGETS                                  #
+# __________________________________ HELPERS _________________________________ #
 # ============================================================================ #
 
 .PHONY: prepare-x11
 prepare-x11:
-	@echo "Preparing X11 for visualization..."
 	@xhost +local: > /dev/null 2>&1 || true
 	@xhost + > /dev/null 2>&1 || true
-	@export RCUTILS_COLORIZED_OUTPUT=1
 
 # ============================================================================ #
-#                           GENERAL TARGETS                                    #
+# ___________________________ BUILD TARGETS __________________________________ #
 # ============================================================================ #
 
-.PHONY: build up down logs ps shell
+.PHONY: build build-body build-slam build-nav build-sim build-viz
 
-build: prepare-x11
-	@echo "Building selected components: $(COMPONENTS)"
-	@$(DC_BUILD)
+build:
+	@echo "==> Building: $(SERVICES)"
+	@$(DC) build $(SERVICES)
+
+build-body:
+	@$(MAKE) build SERVICES="$(BODY_SERVICES)"
+
+build-slam:
+	@$(MAKE) build SERVICES="$(SLAM_SERVICES)"
+
+build-nav:
+	@$(MAKE) build SERVICES="$(NAV_SERVICES)"
+
+build-sim:
+	@$(MAKE) build SERVICES="$(SIM_SERVICES)"
+
+build-viz:
+	@$(MAKE) build SERVICES="$(VIZ_SERVICES)"
+
+build-all:
+	@$(MAKE) build SERVICES="$(ALL_SERVICES)"
+
+# ============================================================================ #
+# ______________________________ UP TARGETS __________________________________ #
+# ============================================================================ #
+
+.PHONY: up up-body up-slam up-nav up-sim up-viz up-robot up-full-sim
 
 up: prepare-x11
-	@echo "Starting selected components: $(COMPONENTS)"
-	@$(DC_UP)
+	@echo "==> Starting: $(SERVICES)"
+	@$(DC) up -d $(SERVICES)
+
+up-body: prepare-x11
+	@$(MAKE) up SERVICES="$(BODY_SERVICES)"
+
+up-slam: prepare-x11
+	@$(MAKE) up SERVICES="$(SLAM_SERVICES)"
+
+up-lio-sam: prepare-x11
+	@$(MAKE) up SERVICES="$(LIO_SAM_SERVICE)"
+
+up-slam-toolbox: prepare-x11
+	@$(MAKE) up SERVICES="$(SLAM_TOOLBOX_SERVICE)"
+
+up-cartographer: prepare-x11
+	@$(MAKE) up SERVICES="$(CARTOGRAPHER_SERVICE)"
+
+up-nav: prepare-x11
+	@$(MAKE) up SERVICES="$(NAV_SERVICES)"
+
+up-sim: prepare-x11
+	@$(MAKE) up SERVICES="$(SIM_SERVICES)"
+
+up-viz: prepare-x11
+	@$(MAKE) up SERVICES="$(VIZ_SERVICES)"
+
+# Комбинированные
+up-robot: prepare-x11
+	@$(MAKE) up SERVICES="$(BODY_SERVICES) $(LIO_SAM_SERVICE) $(VIZ_SERVICES)"
+
+up-full-sim: prepare-x11
+	@$(MAKE) up SERVICES="$(SIM_SERVICES) $(VIZ_SERVICES)"
+
+up-all: prepare-x11
+	@$(MAKE) up SERVICES="$(ALL_SERVICES)"
+
+# ============================================================================ #
+# ______________________________ DOWN TARGETS ________________________________ #
+# ============================================================================ #
+
+.PHONY: down down-body down-slam down-nav down-sim down-viz down-all
 
 down:
-	@echo "Stopping selected components: $(COMPONENTS)"
-	@$(DC_DOWN)
+	@echo "==> Stopping: $(SERVICES)"
+	@$(DC) stop $(SERVICES)
 
-logs:
-	@$(DC_LOGS)
+down-body:
+	@$(MAKE) down SERVICES="$(BODY_SERVICES)"
 
-ps:
-	@$(DC_PS)
+down-slam:
+	@$(MAKE) down SERVICES="$(SLAM_SERVICES)"
+
+down-nav:
+	@$(MAKE) down SERVICES="$(NAV_SERVICES)"
+
+down-sim:
+	@$(MAKE) down SERVICES="$(SIM_SERVICES)"
+
+down-viz:
+	@$(MAKE) down SERVICES="$(VIZ_SERVICES)"
+
+down-all:
+	@$(DC) down
+
+# ============================================================================ #
+# __________________________________ SHELL __________________________________ #
+# ============================================================================ #
+
+.PHONY: shell logs ps
 
 shell:
 	@if [ -z "$(SERVICE)" ]; then \
-		echo "Please specify SERVICE=..."; \
-		exit 1; \
+		echo "Usage: make shell SERVICE=<name>"; exit 1; \
 	fi
-	@$(DC_EXEC) $(SERVICE) bash
+	@$(DC) exec $(SERVICE) bash
 
-# ============================================================================ #
-#                         COMPONENT-SPECIFIC TARGETS                           #
-# ============================================================================ #
-
-# Body
-.PHONY: build-body up-body down-body run-body
-build-body: COMPONENTS = body
-build-body: build
-up-body: COMPONENTS = body
-up-body: prepare-x11
-	@$(DC_UP) body
-down-body: COMPONENTS = body
-down-body:
-	@$(DC_DOWN) body
-
-# SLAM
-.PHONY: build-slam up-slam down-slam
-build-slam: COMPONENTS = slam
-build-slam: build
-up-slam: COMPONENTS = slam
-up-slam: prepare-x11
-	@$(DC_UP) $(SLAM_SERVICE)
-down-slam: COMPONENTS = slam
-down-slam:
-	@$(DC_DOWN) $(SLAM_SERVICE)
-
-# Navigation
-.PHONY: build-navigation up-navigation down-navigation
-build-navigation: COMPONENTS = navigation
-build-navigation: build
-up-navigation: COMPONENTS = navigation
-up-navigation: prepare-x11
-	@$(DC_UP)
-down-navigation: COMPONENTS = navigation
-down-navigation:
-	@$(DC_DOWN)
-
-# Stuff
-.PHONY: build-stuff up-stuff down-stuff
-build-stuff: COMPONENTS = stuff
-build-stuff: build
-up-stuff: COMPONENTS = stuff
-up-stuff: prepare-x11
-	@$(DC_UP)
-down-stuff: COMPONENTS = stuff
-down-stuff:
-	@$(DC_DOWN)
-
-# Visualization (новый компонент)
-.PHONY: build-viz up-viz down-viz
-build-viz: COMPONENTS = viz
-build-viz: build
-up-viz: COMPONENTS = viz
-up-viz: prepare-x11
-	@$(DC_UP)
-down-viz: COMPONENTS = viz
-down-viz:
-	@$(DC_DOWN)
-
-# ============================================================================ #
-#                          VISUALIZATION TARGETS                               #
-# ============================================================================ #
-
-# Удобная цель для запуска rviz2 (использует компонент viz, если он определён)
-.PHONY: up-rviz
-up-rviz:
-	@if [ -n "$(VIZ_COMPOSE)" ]; then \
-		$(MAKE) up-viz; \
-	else \
-		echo "vizualization/docker-compose.yaml not found. Falling back to manual container start."; \
-		$(MAKE) prepare-x11; \
-		docker run -it --rm \
-			--network host \
-			-e DISPLAY=$(DISPLAY) \
-			-e ROS_DOMAIN_ID=$(ROS_DOMAIN_ID) \
-			-v /tmp/.X11-unix:/tmp/.X11-unix \
-			osrf/ros:jazzy-desktop \
-			rviz2; \
+logs:
+	@if [ -z "$(SERVICE)" ]; then \
+		echo "Usage: make logs SERVICE=<name>"; exit 1; \
 	fi
+	@$(DC) logs -f $(SERVICE)
 
-# (Опционально) Цель для Foxglove, если он есть в vizualization
-.PHONY: up-foxglove
-up-foxglove:
-	@if [ -n "$(VIZ_COMPOSE)" ]; then \
-		cd $(ROOT_DIR)/vizualization && docker compose up -d foxglove; \
-	else \
-		echo "Foxglove not configured. Please provide vizualization/docker-compose.yaml"; \
+ps:
+	@$(DC) ps
+
+# ============================================================================ #
+# __________________________________ TMUX ____________________________________ #
+# ============================================================================ #
+#
+#  Переменные:
+#    SERVICES  — список сервисов через пробел (по умолчанию ALL_SERVICES)
+#    SESSION   — имя tmux-сессии (по умолчанию "ros")
+#    LAYOUT    — расположение панелей: h (horizontal) | v (vertical) | tiled
+#                  h (even-horizontal) — панели в ряд слева направо
+#                  v (even-vertical)   — панели столбцом сверху вниз
+#                  tiled               — сетка, максимально квадратная
+#
+#  Примеры:
+#    make monitor                                          — все сервисы, горизонтально
+#    make monitor SERVICES="lio-sam nav2" LAYOUT=v        — два сервиса, вертикально
+#    make monitor SERVICES="body lio-sam nav2" LAYOUT=tiled SESSION=debug
+# ============================================================================ #
+
+SESSION ?= ros
+LAYOUT  ?= h
+
+# Внутреннее имя tmux-layout
+tmux_layout = $(if $(filter h,$(LAYOUT)),even-horizontal,$(if $(filter v,$(LAYOUT)),even-vertical,tiled))
+
+.PHONY: monitor monitor-body monitor-slam monitor-nav monitor-robot monitor-kill
+
+# Основная цель — запускает tmux с панелями для каждого сервиса из SERVICES
+monitor:
+	@if ! command -v tmux > /dev/null 2>&1; then \
+		echo "tmux не установлен. Установи: sudo apt install tmux"; exit 1; \
 	fi
+	@# Убиваем старую сессию с тем же именем если есть
+	@tmux kill-session -t $(SESSION) 2>/dev/null || true
+	@# Создаём новую сессию с первым сервисом
+	@first=1; \
+	for service in $(SERVICES); do \
+		if [ $$first -eq 1 ]; then \
+			tmux new-session -d -s $(SESSION) -n "logs" \
+				-x "$(shell tput cols 2>/dev/null || echo 220)" \
+				-y "$(shell tput lines 2>/dev/null || echo 50)"; \
+			tmux send-keys -t $(SESSION):logs \
+				"$(DC) logs -f --tail=200 $$service" Enter; \
+			first=0; \
+		else \
+			tmux split-window -t $(SESSION):logs \
+				"$(DC) logs -f --tail=200 $$service"; \
+		fi; \
+	done
+	@# Выравниваем панели
+	@tmux select-layout -t $(SESSION):logs $(call tmux_layout)
+	@# Включаем синхронизацию прокрутки между панелями (опционально, закомментируй если не нужно)
+	@# tmux setw -t $(SESSION):logs synchronize-panes on
+	@# Добавляем вкладку для управления (shell)
+	@tmux new-window -t $(SESSION) -n "shell"
+	@tmux send-keys -t $(SESSION):shell "echo 'Shell ready. Сервисы: $(SERVICES)'" Enter
+	@# Возвращаемся на вкладку с логами
+	@tmux select-window -t $(SESSION):logs
+	@echo "==> tmux сессия '$(SESSION)' запущена"
+	@echo "     Переключение между вкладками: Ctrl+B затем 0/1"
+	@echo "     Переключение между панелями:  Ctrl+B затем стрелки"
+	@echo "     Закрыть сессию:               make monitor-kill SESSION=$(SESSION)"
+	@tmux attach -t $(SESSION)
+
+# Просмотр логов для конкретных групп
+monitor-body:
+	@$(MAKE) monitor SERVICES="$(BODY_SERVICES)" SESSION=body
+
+monitor-slam:
+	@$(MAKE) monitor SERVICES="$(SLAM_SERVICES)" SESSION=slam LAYOUT=v
+
+monitor-nav:
+	@$(MAKE) monitor SERVICES="$(NAV_SERVICES)" SESSION=nav
+
+monitor-robot:
+	@$(MAKE) monitor \
+		SERVICES="$(BODY_SERVICE) $(LIO_SAM_SERVICE) $(NAV2_SERVICE) $(RVIZ_SERVICE)" \
+		SESSION=robot \
+		LAYOUT=tiled
+
+monitor-sim:
+	@$(MAKE) monitor SERVICES="$(SIM_SERVICES)" SESSION=sim
+
+# Запустить сервисы И сразу открыть мониторинг
+.PHONY: run-and-monitor
+
+run-and-monitor: prepare-x11
+	@echo "==> Запускаем сервисы: $(SERVICES)"
+	@$(DC) up -d $(SERVICES)
+	@sleep 1
+	@$(MAKE) monitor SERVICES="$(SERVICES)" SESSION="$(SESSION)" LAYOUT="$(LAYOUT)"
+
+# Закрыть tmux сессию
+monitor-kill:
+	@tmux kill-session -t $(SESSION) 2>/dev/null && \
+		echo "==> Сессия '$(SESSION)' закрыта" || \
+		echo "Сессия '$(SESSION)' не найдена"
+
+monitor-kill-all:
+	@tmux kill-server 2>/dev/null && \
+		echo "==> Все tmux сессии закрыты" || \
+		echo "Нет активных tmux сессий"
+
+# Список активных сессий
+monitor-ls:
+	@tmux ls 2>/dev/null || echo "Нет активных tmux сессий"
 
 # ============================================================================ #
-#                      BACKWARD COMPATIBILITY TARGETS                         #
+# __________________________________ HELP ____________________________________ #
 # ============================================================================ #
 
-.PHONY: run-body run-brain run-camera run-test run-rviz run
-
-run-body: up-body
-run-brain:
-	@echo "Brain services are not yet modularized. Use COMPONENTS='body slam' etc."
-run-camera:
-	@echo "Camera services are part of 'body'. Use up-body."
-run-test:
-	@echo "Test service is not defined. Use up-slam with SLAM_SERVICE or similar."
-run-rviz: up-rviz
-run: COMPONENTS = body slam viz   # по умолчанию запускать body, slam и viz
-run: up
+.PHONY: help
+help:
+	@echo ""
+	@echo "╔══════════════════════════════════════════════════════════════════╗"
+	@echo "║                        ROS2 MAKE TARGETS                         ║"
+	@echo "╠══════════════════════════════════════════════════════════════════╣"
+	@echo "║  BUILD                                                           ║"
+	@echo "║    make build-body           — собрать body сервисы              ║"
+	@echo "║    make build-slam           — собрать SLAM сервисы              ║"
+	@echo "║    make build-nav            — собрать navigation                ║"
+	@echo "║    make build-sim            — собрать симуляцию                 ║"
+	@echo "║    make build SERVICES="s1 s2" — собрать конкретные сервисы      ║"
+	@echo "╠══════════════════════════════════════════════════════════════════╣"
+	@echo "║  UP / DOWN                                                       ║"
+	@echo "║    make up-robot             — body + lio-sam + rviz             ║"
+	@echo "║    make up-full-sim          — sim + rviz                        ║"
+	@echo "║    make up-slam              — все SLAM сервисы                  ║"
+	@echo "║    make up-lio-sam           — только lio-sam                    ║"
+	@echo "║    make up SERVICES="s1 s2"   — запустить конкретные             ║"
+	@echo "║    make down-all             — остановить все                    ║"
+	@echo "╠══════════════════════════════════════════════════════════════════╣"
+	@echo "║  МОНИТОРИНГ (tmux)                                               ║"
+	@echo "║    make monitor              — логи всех сервисов                ║"
+	@echo "║    make monitor-robot        — логи robot стека (tiled)          ║"
+	@echo "║    make monitor-slam         — логи SLAM (вертикально)           ║"
+	@echo "║    make monitor SERVICES="s1 s2" LAYOUT=h|v|tiled                ║"
+	@echo "║    make run-and-monitor SERVICES="s1 s2" — up + monitor          ║"
+	@echo "║    make monitor-kill         — закрыть сессию ros                ║"
+	@echo "║    make monitor-kill SESSION=name — закрыть конкретную           ║"
+	@echo "║    make monitor-ls           — список активных сессий            ║"
+	@echo "╠══════════════════════════════════════════════════════════════════╣"
+	@echo "║  ПРОЧЕЕ                                                          ║"
+	@echo "║    make shell SERVICE=<name> — bash внутри контейнера            ║"
+	@echo "║    make logs  SERVICE=<name> — логи одного сервиса               ║"
+	@echo "║    make ps                   — статус контейнеров                ║"
+	@echo "╠══════════════════════════════════════════════════════════════════╣"
+	@echo "║  tmux: Ctrl+B → стрелки (панели), 0/1 (вкладки), d (detach)      ║"
+	@echo "╚══════════════════════════════════════════════════════════════════╝"
+	@echo ""

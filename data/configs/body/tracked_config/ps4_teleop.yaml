@@ -1,0 +1,9 @@
+teleop_twist_joy:
+  ros__parameters:
+    enable_button:        5     # RB   ─ удерживать, чтобы /cmd_vel шёл в эфир
+    axis_linear:          1     # LX   ─ линейная скорость (вперёд-назад)
+    scale_linear:         1.0   # м/с
+    axis_angular:         3     # RX   ─ угловая скорость (поворот)
+    scale_angular:        2.0   # рад/с
+    enable_turbo_button:  4     # LB   ─ даёт «турбо-коэффициенты»
+    scale_linear_turbo:   1.5

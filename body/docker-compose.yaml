@@ -31,12 +31,14 @@ services:
       - /dev:/dev:ro  
       - /lib/modules:/lib/modules:ro 
       - /sys/class/video4linux:/sys/class/video4linux:ro 
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
     devices:  
       - /dev/bus/usb:/dev/bus/usb
       - /dev/video0:/dev/video0
       - /dev/input:/dev/input 
     privileged: true
-    #restart: always
+    restart: always
     stdin_open: true
     tty: true
     command: ros2 launch tracked_description bringup_t21.launch.py
