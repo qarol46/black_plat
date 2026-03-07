@@ -3,74 +3,165 @@
 ## Оглавление
 
 - [Цель](#цель)
+- [Аппаратная часть](#аппаратная-часть)
 - [Структура проекта](#структура-проекта)
 - [Зависимости](#зависимости)
 - [Сборка](#сборка)
+- [Запуск](#запуск)
+- [Известные проблемы](#известные-проблемы)
+
 ---
 
 ## Цель
 
-Этот репозиторий содержит наработки для построения системы автономной навигации гусеничной платформы. Основной целью проекта на текущий момент является построение системы, способной создавать точные трёхмерных карты окружающей среды и локализоваться по ним и данным сенсорных компонентов.
-
----
-#  [Структура проекта](#оглавление)
-
-bash_scripts - директория для bash-скриптов (управления, установки пакетов и т.д.)
-
-[bluespace_ai_xsens_ros_mti_driver](src/bluespace_ai_xsens_ros_mti_driver/README.md) - пакет для запуска драйвера IMU XSENS.
-
-[LIO-SAM](src/LIO-SAM/README.md) - пакет для запуска SLAM-алгоритма LIO-SAM.
-
-[odometry_fus](src/odometry_fus/README.md) - пакет для получения комплесированной одометрии(ros2_control + IMU) и отправки управляющих команд для прямолинейного движения и поворотов на указанное расстоняние/угол.
-
-[ros2_control] - пакет с hardware для реализации контроллера мобильной платформы с использованием фреймворка ros2_control.
-
-[t21_cartographer](src/t21_cartographer/README.md) - пакет для запуска SLAM-алгоритма Cartographer.
-
-[t21_lidar](src/t21_lidar/README.md) - пакет для запуска драйверов VLP-16.
-
-[t21_navigation](src/t21_navigation/README.md) - пакет для запуска SLAM Toolbox, Nav2 и узла pointcloud_to_laserscan.
-
-[t21_rtabmap](src/t21_rtabmap/README.md) - пакет для запуска драйвера Realsense и SLAM-алгоритма RTAB-Map.  
-
-[t21_sim](src/t21_sim/README.md) - пакет симуляции мобильной платформы. 
-
-[t21_teleop] - пакет управление реальной платформой.
-
-[tracked_description](src/tracked_description/README.md) - основной пакет, содержащий описание робота и файлы запуска для реальной платформы.
-
-[USR-DR134-GUI](https://github.com/dakolzin/USR-DR134-GUI.git) - пакет для отслеживания заряда аккумулятора. [Устанавливается из репозитория автора - dakolzin](https://github.com/dakolzin/USR-DR134-GUI.git).
-
-velodyne_simulator - сторонний пакет, содержащий описание LiDAR VLP-16 и плагины для Gazebo. deb package на момент проверки содержал ошибку.
+Этот репозиторий содержит наработки для построения системы автономной навигации гусеничной платформы. Основной целью проекта на текущий момент является построение системы, способной создавать точные трёхмерные карты окружающей среды и локализоваться по ним с использованием данных сенсорных компонентов.
 
 ---
 
-# [Зависимости](#оглавление)
+## Аппаратная часть
 
-Устанавливаются при сборке рабочего пространства. Отдельно перечислены при описании каждого из подпроектов. **Для [t21_rtabmap](src/t21_rtabmap/README.md) необходимо провести дополнительные установки - смотреть в описании.**
+| Компонент | Описание |
+|-----------|----------|
+| Гусеничная платформа | Мобильная платформа с ros2_control |
+| IMU | XSENS MTi 710 |
+| LiDAR | Velodyne VLP-16 |
+| Камера | (Intel RealSense D435i) |
 
 ---
 
-# [Сборка рабочего пространства](#оглавление)
+## Структура проекта
+
+Проект основан на контейнеризации с помощью `docker compose`. Каждый функциональный блок вынесен в отдельный сервис. Всего выделено 4 функциональных группы: `body`, `SLAM`, `navigation`, `sim`. Настройка запуска осуществляется через make-файл или ручным запуском отдельных сервисов с помощью команды `docker compose up <имя_сервиса>`.
+
+Структура каждого функционального блока:
+
+```
+Имя_функциональной_директории/
+├── docker-compose.yaml
+└── Имя_пакета/
+    ├── docker/
+    │   ├── Dockerfile
+    │   └── ros_entrypoint.sh
+    └── ros2/
+        └── Имя_пакета/
+            └── Файлы_пакета
+```
+
+**Общая структура репозитория:**
+
+```
+black_plat/
+├── bash_scripts/           # Bash-скрипты управления и установки пакетов
+├── body/                   # Управление платформой и сенсорные данные
+├── SLAM/                   # SLAM-алгоритмы
+├── navigation/             # Автономная навигация
+├── sim/                    # Симуляция
+├── data/                   # Конфиги всех пакетов, описание робота, rosbag'и, карты
+├── visualization/          # Инструменты и конфиги визуализации
+├── dds/                    # Конфигурация DDS (middleware ROS2)
+├── materials/              # Вспомогательные материалы
+├── docker-compose.yaml     # Корневой compose-файл
+├── Makefile                # Основной make-файл для сборки и запуска
+└── README.md
+```
+---
+
+### body — управление платформой
+
+Пакеты, относящиеся к управлению платформой и получению сенсорных данных.
+
+- [bluespace_ai_xsens_ros_mti_driver](body/ros2/bluespace_ai_xsens_ros_mti_driver/README.md) — драйвер IMU XSENS MTi.
+- [t21_lidar](body/ros2/t21_lidar/README.md) — драйверы Velodyne VLP-16.
+- [t21_camera](body/ros2/t21_camera/README.md) — драйвер камеры.
+- [ros2_control] — пакет с hardware-интерфейсами для управления мобильной платформой через фреймворк ros2_control.
+- [t21_teleop] — пакет телеуправления реальной платформой.
+- [tracked_description](body/ros2/tracked_description/README.md) — основной пакет с описанием робота (URDF/XACRO) и launch-файлами для реальной платформы.
+- [power_monitor](https://github.com/dakolzin/USR-DR134-GUI.git) — мониторинг заряда аккумулятора. Устанавливается отдельно из [репозитория автора](https://github.com/dakolzin/USR-DR134-GUI.git).
+
+---
+
+### SLAM — алгоритмы построения карт
+
+- [LeGO-LOAM](SLAM/LeGO-LOAM-ROS2/ros2/README.md) — SLAM-алгоритм на основе LiDAR.
+- [t21_slam_toolbox](SLAM/t21_slam_toolbox/ros2/t21_slam_toolbox/README.md) — интеграция slam_toolbox.
+- [LIO-SAM](SLAM/LIO_SAM/ros2/lio_sam/README.md) — LiDAR-Inertial Odometry SLAM.
+- [t21_cartographer](SLAM/t21_cartographer/ros2/t21_cartographer/README.md) — Google Cartographer SLAM.
+- [t21_rtabmap](SLAM/t21_rtabmap/ros2/t21_rtabmap/README.md) — RTAB-Map с поддержкой Realsense. ⚠️ **В данный момент не используется** из-за ошибки сборки контейнера.
+
+---
+
+### navigation — автономная навигация
+
+- [t21_nav2](navigation/t21_nav2/ros2/README.md) — конфигурация и запуск Nav2.
+
+---
+
+### sim — симуляция
+
+- [t21_sim](sim/ros2/t21_sim/README.md) — симуляция мобильной платформы в Gazebo.
+- velodyne_simulator — сторонний пакет с описанием LiDAR VLP-16 и плагинами для Gazebo. ⚠️ deb-пакет на момент проверки содержал ошибку, рекомендуется сборка из исходников.
+
+---
+
+## Зависимости
+
+Все зависимости устанавливаются автоматически при сборке внутри контейнеров. Базовым образом является **`t21-rviz2`** на основе `ros:humble-ros-core`. Все остальные образы являются дочерними (если обратное не указано в README конкретного пакета).
+
+Для работы на хосте необходимы:
+- Docker Engine (≥ 24.x) и Docker Compose V2
+- NVIDIA Container Toolkit (для GPU-ускорения, если используется)
+- `make`
+
+---
+
+## Сборка
 
 ```bash
-# создаём (или используем существующее) рабочее пространство
+# Создаём (или используем существующее) рабочее пространство
 mkdir -p ~/t21_ws/src
 cd ~/t21_ws
 
-# клонируем пакет в src/
-git clone https://github.com/qarol46/black_plat.git
+# Клонируем репозиторий
+git clone -b compose https://github.com/qarol46/black_plat.git
 
-# устанавливаем необходимые ros-пакеты 
-chmod +x bash_scripts/install_ros_pkgs.sh
-sudo bash bash_scripts/install_ros_pkgs.sh
+# Устанавливаем Docker Desktop (Ubuntu)
+sudo apt-get update
+sudo apt install ./docker-desktop-amd64.deb
 
-# сборка
-source /opt/ros/humble/setup.bash
-colcon build --symlink-install
+# Собираем все образы
+make build
 
-# инициализируем рабочее пространство
-source install/setup.bash
+# Или напрямую через docker compose
+docker compose build
 ```
 
 ---
+
+## Запуск
+
+Выберите интересующие сервисы, перечислив их в переменной `SERVICES :=` в `Makefile`, затем:
+
+```bash
+# Запустить выбранные сервисы (без вывода логов в терминал)
+make up
+
+# Запустить отдельный сервис с выводом логов в текущий терминал
+make up-<имя_сервиса>
+
+# Пример: запуск только LiDAR и IMU
+make up-t21_lidar
+make up-bluespace_ai_xsens_ros_mti_driver
+```
+
+> ⚠️ **Внимание:** сервисы, запущенные через `make up`, не выводят логи в терминал. Для просмотра логов запускайте каждый сервис в отдельном окне через `make up-<имя_сервиса>`.
+
+---
+
+## Известные проблемы
+
+| Проблема | Статус |
+|----------|--------|
+| `t21_rtabmap` — ошибка сборки контейнера | 🔴 Не исправлено |
+| `velodyne_simulator` deb-пакет содержит ошибку | 🟡 Workaround: сборка из исходников |
+| устаревшие описания пакетов|🟡 идёт исправление|
+                       

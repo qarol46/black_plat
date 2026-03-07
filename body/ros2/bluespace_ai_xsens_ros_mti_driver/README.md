@@ -1,3 +1,5 @@
+[***ВЕРНУТЬСЯ***](/README.md)
+
 # **XSENS Driver**
 # Оглавление
 
@@ -25,8 +27,6 @@ src/bluespace_ai_xsens_ros_mti_driver
 ├── lib # Интерфейсы
 ├── LICENSE.txt
 ├── package.xml
-├── param
-│   └── xsens_mti_node.yaml # Параметры узла драйвера #TODO добавить недостающие параметры
 ├── README.md # <Вы находитесь здесь>
 ├── README.txt # Оригинальный README
 ├── rviz # Параметры для запуска RViz
@@ -45,3 +45,5 @@ src/bluespace_ai_xsens_ros_mti_driver
 На данный момент для задания параметра `parent_id` необходимо в файле [packetcallback.h](src/messagepublishers/packetcallback.h) изменить соответствующее значение. В дальнейшем баг будет исправлен.
 
 ---
+
+[***ВЕРНУТЬСЯ***](/README.md)

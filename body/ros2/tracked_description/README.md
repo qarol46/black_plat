@@ -1,13 +1,14 @@
+[***ВЕРНУТЬСЯ***](/README.md)
+
 # **Черная платформа**
 
-![youbot](../../materials/image.png)
+![youbot](/materials/image.png)
 
 ## Оглавление
 
 - [Цель](#цель)
 - [Описание каталогов](#описание-каталогов)
 - [Зависимости](#зависимости)
-- [Сборка рабочего пространства](#сборка-рабочего-пространства)
 - [Запуск модели в RViz2](#запуск-модели-в-rviz2)
 ---
 
@@ -22,15 +23,8 @@
 t21_ws/src/tracked_description
 ├── CMakeLists.txt                # скрипт ament_cmake
 ├── package.xml                   # зависимости
-├── mesh/                         # STL‑модели
-│   ├── base.stl
-│   └── fliper.stl
-├── urdf/
-│   └── tracked_robot.urdf.xacro  # описание робота (xacro)
 ├── launch/
 │   └── display.launch.py         # быстрый запуск визуализации
-├── config/
-│   └── rviz.rviz                 # конфигурационный RViz2
 └── src/
     └── dummy.cpp                 # заглушка‑нода
 ```
@@ -56,26 +50,6 @@ sudo apt update && \
                        ros-humble-joint-state-publisher-gui \
                        ros-humble-rviz2 \
                        sudo apt install ros-humble-rtabmap-ros
-```
-
----
-
-# [Сборка рабочего пространства](#оглавление)
-
-```bash
-# создаём (или используем существующее) рабочее пространство
-mkdir -p ~/t21_ws/src
-cd ~/t21_ws
-
-# клонируем пакет в src/
-git clone git@github.com:dakolzin/black_plat.git 
-
-# сборка
-source /opt/ros/humble/setup.bash
-colcon build --symlink-install
-
-# инициализируем рабочее пространство
-source install/setup.bash
 ```
 
 ---
@@ -117,3 +91,5 @@ ros2 launch t21_teleop joy_full_teleop.launch.py
 ```bash
 ros2 run tracked_description dummy
 ```
+
+[***ВЕРНУТЬСЯ***](/README.md)

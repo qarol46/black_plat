@@ -1,4 +1,6 @@
-# **t21_navigation**
+[***ВЕРНУТЬСЯ***](/README.md)
+
+# **t21_slam_toolbox**
 # Оглавление
 
 - [Цель](#цель)
@@ -13,28 +15,20 @@
 
 ## Цель
 
-Пакет предназначен для проецирования среза облака точек на плоскость 2D-скана и использования slam_toolbox и nav2.
+Пакет предназначен для проецирования среза облака точек на плоскость 2D-скана и использования slam_toolbox.
 
 ---
 
 #  [Структура проекта](#оглавление)
 
 ```bash
-src/t21_navigation/
-├── behavior_trees              # Файлы для старых версий nav2
+src/t21_slam_toolbox/            
 ├── CMakeLists.txt              
-├── config                      
-│   ├── navigation_sim.yaml     # Настройка nav2 для симуляции
-│   ├── navigation.yaml         # Настройка nav2 для реального робота
-│   └── slam.yaml               # Настройка slam_toolbox
 ├── launch                      #
-│   ├── navigation.launch.py    # Запуск nav2
 │   ├── slam.launch.py          # Запуск slam_toolbox
 │   └── translate.launch.py     # Запуск проецирования облака точек на 2D-скан (poitcloud_to_laserscan)
-├── maps                        # Директория для сохранения карт
 ├── package.xml                 
 ├── README.md                   # <Вы находитесь здесь>
-├── rviz                        # Для конфига rviz
 └── src                         
     └── ground_filter_node.cpp  # Кастомная нода для предобработки облака точек, не рекомендуется к использованию
 ```
@@ -92,7 +86,7 @@ sudo apt install ros-${ROS_DISTRO}-slam-toolbox \
 
 Прежде всего необходимо убедиться, что проецирование облака точек работает корректно. Пакет может не видеть входного топика -- пока решение не найдено, но может помочь переустановка пакетов pcl-*.
 
-Далее производится настройка slam_toolbox и nav2.
+Далее производится настройка slam_toolbox.
 
 ---
 
@@ -111,13 +105,6 @@ ros2 launch t21_navigation slam.launch.py
 ```
 Используется online_async режим картографирования.
 
-
-Запуск nav2 (по умолчанию use_sim_time:=false):
-
-```bash
-ros2 launch t21_navigation navigation.launch.py
-```
-
 ---
 
 # [Сохранение карты](#оглавление)
@@ -127,8 +114,9 @@ ros2 launch t21_navigation navigation.launch.py
 ---
 
 # [TODO](#оглавление)
-- Обновить launch-файлы
 - Добавить фильтрацию облака точек или вынести в отдельных пакет
 - Добавить советы по отладке и комментарии к конфигам  
 
 ---
+
+[***ВЕРНУТЬСЯ***](/README.md)
