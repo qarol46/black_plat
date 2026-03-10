@@ -39,5 +39,9 @@ li_calib.zip
 plot_venv/
 __pycache__/
 imu_calib/
-
+control_log_csv/
+output_csv/
+analyze_logs.py
+test.py
+analysis_plots/
 COLCON_IGNORE
