@@ -15,26 +15,24 @@ export DISPLAY ROS_DOMAIN_ID ROOT_DIR
 # ============================================================================ #
 
 # Отдельные сервисы
+SIM_SERVICE           ?= sim
+RVIZ_SERVICE          ?= rviz2
+NAV2_SERVICE          ?= nav2
 BODY_SERVICE          ?= body
 TELEOP_SERVICE        ?= teleop
 POWER_MONITOR_SERVICE ?= power_monitor
-RVIZ_SERVICE          ?= rviz2
 LIO_SAM_SERVICE       ?= lio-sam
 LEGO_LOAM_SERVICE     ?= lego-loam
 SLAM_TOOLBOX_SERVICE  ?= slam_toolbox
 CARTOGRAPHER_SERVICE  ?= cartographer
-NAV2_SERVICE          ?= nav2
-SIM_SERVICE           ?= sim
 
 # Группы сервисов
-BODY_SERVICES := $(BODY_SERVICE) $(TELEOP_SERVICE) $(POWER_MONITOR_SERVICE)
-SLAM_SERVICES := $(LIO_SAM_SERVICE) $(SLAM_TOOLBOX_SERVICE) $(CARTOGRAPHER_SERVICE)
-NAV_SERVICES  := $(NAV2_SERVICE)
-VIZ_SERVICES  := $(RVIZ_SERVICE)
+PLATFORM_SERVICES := $(BODY_SERVICE) $(TELEOP_SERVICE)
+SLAM_SERVICE := $(LIO_SAM_SERVICE)
 SIM_SERVICES  := $(SIM_SERVICE)
 
 # Полный стек
-ALL_SERVICES  := $(BODY_SERVICES) $(SLAM_SERVICES) $(NAV_SERVICES) $(VIZ_SERVICES)
+ALL_SERVICES  := $(PLATFORM_SERVICES) $(SLAM_SERVICE) $(RVIZ_SERVICE) $(POWER_MONITOR_SERVICE)
 
 # Сервисы для запуска (переопределяется при вызове make)
 SERVICES      ?= $(ALL_SERVICES)
@@ -58,26 +56,46 @@ prepare-x11:
 # ___________________________ BUILD TARGETS __________________________________ #
 # ============================================================================ #
 
-.PHONY: build build-body build-slam build-nav build-sim build-viz
+.PHONY: build build-platform build-slam build-nav2 build-sim build-rviz \
+		build-body build-teleop build-power-monitor build-lio-sam build-lego-loam \
+		build-slam-toolbox build-cartographer
 
 build:
 	@echo "==> Building: $(SERVICES)"
 	@$(DC) build $(SERVICES)
 
-build-body:
-	@$(MAKE) build SERVICES="$(BODY_SERVICES)"
+build-platform:
+	@$(MAKE) build SERVICES="$(PLATFORM_SERVICES)"
 
 build-slam:
-	@$(MAKE) build SERVICES="$(SLAM_SERVICES)"
+	@$(MAKE) build SERVICES="$(SLAM_SERVICE)"
 
-build-nav:
-	@$(MAKE) build SERVICES="$(NAV_SERVICES)"
+build-nav2:
+	@$(MAKE) build SERVICES="$(NAV2_SERVICE)"
 
 build-sim:
 	@$(MAKE) build SERVICES="$(SIM_SERVICES)"
 
-build-viz:
-	@$(MAKE) build SERVICES="$(VIZ_SERVICES)"
+build-rviz:
+	@$(MAKE) build SERVICES="$(RVIZ_SERVICE)"
+
+build-body:
+	@$(MAKE) build SERVICES="$(BODY_SERVICE)"
+
+build-power-monitor:
+	@$(MAKE) build SERVICES="$(POWER_MONITOR_SERVICE)"
+
+build-lio-sam:
+	@$(MAKE) build SERVICES="$(LIO_SAM_SERVICE)"
+
+build-lego-loam:
+	@$(MAKE) build SERVICES="$(LEGO_LOAM_SERVICE)"
+
+build-slam-toolbox:
+	@$(MAKE) build SERVICES="$(SLAM_TOOLBOX_SERVICE)"
+
+build-cartographer:
+	@$(MAKE) build SERVICES="$(CARTOGRAPHER_SERVICE)"
 
 build-all:
 	@$(MAKE) build SERVICES="$(ALL_SERVICES)"
@@ -86,20 +104,43 @@ build-all:
 # ______________________________ UP TARGETS __________________________________ #
 # ============================================================================ #
 
-.PHONY: up up-body up-slam up-nav up-sim up-viz up-robot up-full-sim
+.PHONY: up up-platform up-slam up-nav2 up-sim up-rviz \
+		up-body up-teleop up-power-monitor up-lio-sam up-lego-loam \
+		up-slam-toolbox up-cartographer
 
 up: prepare-x11
 	@echo "==> Starting: $(SERVICES)"
-	@$(DC) up -d $(SERVICES)
+	@$(DC) up $(SERVICES)
 
-up-body: prepare-x11
-	@$(MAKE) up SERVICES="$(BODY_SERVICES)"
+up-platform: prepare-x11
+	@$(MAKE) up SERVICES="$(PLATFORM_SERVICES)"
 
 up-slam: prepare-x11
-	@$(MAKE) up SERVICES="$(SLAM_SERVICES)"
+	@$(MAKE) up SERVICES="$(SLAM_SERVICE)"
+
+up-nav2: prepare-x11
+	@$(MAKE) up SERVICES="$(NAV2_SERVICE)"
+
+up-sim: prepare-x11
+	@$(MAKE) up SERVICES="$(SIM_SERVICES)"
+
+up-rviz: prepare-x11
+	@$(MAKE) up SERVICES="$(RVIZ_SERVICE)"
+
+up-body: prepare-x11
+	@$(MAKE) up SERVICES="$(BODY_SERVICE)"
+
+up-teleop: prepare-x11
+	@$(MAKE) up SERVICES="$(TELEOP_SERVICE)"
+
+up-power-monitor: prepare-x11
+	@$(MAKE) up SERVICES="$(POWER_MONITOR_SERVICE)"
 
 up-lio-sam: prepare-x11
 	@$(MAKE) up SERVICES="$(LIO_SAM_SERVICE)"
+
+up-lego-loam: prepare-x11
+	@$(MAKE) up SERVICES="$(LEGO_LOAM_SERVICE)"
 
 up-slam-toolbox: prepare-x11
 	@$(MAKE) up SERVICES="$(SLAM_TOOLBOX_SERVICE)"
@@ -107,21 +148,8 @@ up-slam-toolbox: prepare-x11
 up-cartographer: prepare-x11
 	@$(MAKE) up SERVICES="$(CARTOGRAPHER_SERVICE)"
 
-up-nav: prepare-x11
-	@$(MAKE) up SERVICES="$(NAV_SERVICES)"
-
-up-sim: prepare-x11
-	@$(MAKE) up SERVICES="$(SIM_SERVICES)"
-
-up-viz: prepare-x11
-	@$(MAKE) up SERVICES="$(VIZ_SERVICES)"
-
-# Комбинированные
-up-robot: prepare-x11
-	@$(MAKE) up SERVICES="$(BODY_SERVICES) $(LIO_SAM_SERVICE) $(VIZ_SERVICES)"
-
-up-full-sim: prepare-x11
-	@$(MAKE) up SERVICES="$(SIM_SERVICES) $(VIZ_SERVICES)"
+# up-robot: prepare-x11
+# 	@$(MAKE) up SERVICES="$(BODY_SERVICES) $(LIO_SAM_SERVICE) $(RVIZ_SERVICE)"
 
 up-all: prepare-x11
 	@$(MAKE) up SERVICES="$(ALL_SERVICES)"
@@ -130,26 +158,48 @@ up-all: prepare-x11
 # ______________________________ DOWN TARGETS ________________________________ #
 # ============================================================================ #
 
-.PHONY: down down-body down-slam down-nav down-sim down-viz down-all
-
+.PHONY: down down-platform down-slam down-nav2 down-sim down-rviz \
+		down-body down-teleop down-power-monitor down-lio-sam down-lego-loam \
+		down-slam-toolbox down-cartographer
 down:
 	@echo "==> Stopping: $(SERVICES)"
 	@$(DC) stop $(SERVICES)
 
-down-body:
-	@$(MAKE) down SERVICES="$(BODY_SERVICES)"
+down-platform:
+	@$(MAKE) down SERVICES="$(PLATFORM_SERVICES)"
 
 down-slam:
-	@$(MAKE) down SERVICES="$(SLAM_SERVICES)"
+	@$(MAKE) down SERVICES="$(SLAM_SERVICE)"
 
-down-nav:
-	@$(MAKE) down SERVICES="$(NAV_SERVICES)"
+down-nav2:
+	@$(MAKE) down SERVICES="$(NAV2_SERVICE)"
 
 down-sim:
 	@$(MAKE) down SERVICES="$(SIM_SERVICES)"
 
-down-viz:
-	@$(MAKE) down SERVICES="$(VIZ_SERVICES)"
+down-rviz:
+	@$(MAKE) down SERVICES="$(RVIZ_SERVICE)"
+
+down-body:
+	@$(MAKE) down SERVICES="$(BODY_SERVICE)"
+
+down-teleop:
+	@$(MAKE) down SERVICES="$(TELEOP_SERVICE)"
+
+down-powe-monitor:
+	@$(MAKE) down SERVICES="$(POWER_MONITOR_SERVICE)"
+
+down-lio-sam:
+	@$(MAKE) down SERVICES="$(LIO_SAM_SERVICE)"
+
+down-lego-loam:
+	@$(MAKE) down SERVICES="$(LEGO_LOAM_SERVICE)"
+
+down-slam-toolbox:
+	@$(MAKE) down SERVICES="$(SLAM_TOOLBOX_SERVICE)"
+
+down-cartographer:
+	@$(MAKE) down SERVICES="$(CARTOGRAPHER_SERVICE)"
 
 down-all:
 	@$(DC) down
@@ -181,7 +231,7 @@ ps:
 #
 #  Переменные:
 #    SERVICES  — список сервисов через пробел (по умолчанию ALL_SERVICES)
-#    SESSION   — имя tmux-сессии (по умолчанию "ros")
+#    SESSION   — имя tmux-сессии (по умолчанию "black_plat")
 #    LAYOUT    — расположение панелей: h (horizontal) | v (vertical) | tiled
 #                  h (even-horizontal) — панели в ряд слева направо
 #                  v (even-vertical)   — панели столбцом сверху вниз
@@ -193,13 +243,14 @@ ps:
 #    make monitor SERVICES="body lio-sam nav2" LAYOUT=tiled SESSION=debug
 # ============================================================================ #
 
-SESSION ?= ros
+SESSION ?= black_plat
 LAYOUT  ?= h
 
 # Внутреннее имя tmux-layout
 tmux_layout = $(if $(filter h,$(LAYOUT)),even-horizontal,$(if $(filter v,$(LAYOUT)),even-vertical,tiled))
 
-.PHONY: monitor monitor-body monitor-slam monitor-nav monitor-robot monitor-kill
+.PHONY: monitor monitor-platform monitor-slam monitor-nav2 monitor-robot monitor-sim \
+		monitor-down monitor-kill monitor-kill-all monitor-ls monitor-attach
 
 # Основная цель — запускает tmux с панелями для каждого сервиса из SERVICES
 monitor:
@@ -216,11 +267,11 @@ monitor:
 				-x "$(shell tput cols 2>/dev/null || echo 220)" \
 				-y "$(shell tput lines 2>/dev/null || echo 50)"; \
 			tmux send-keys -t $(SESSION):logs \
-				"$(DC) logs -f --tail=200 $$service" Enter; \
+				"$(DC) up $$service" Enter; \
 			first=0; \
 		else \
 			tmux split-window -t $(SESSION):logs \
-				"$(DC) logs -f --tail=200 $$service"; \
+				"$(DC) up $$service"; \
 		fi; \
 	done
 	@# Выравниваем панели
@@ -238,19 +289,22 @@ monitor:
 	@echo "     Закрыть сессию:               make monitor-kill SESSION=$(SESSION)"
 	@tmux attach -t $(SESSION)
 
+monitor-attach:
+	@tmux attach -t $(SESSION)
+
 # Просмотр логов для конкретных групп
-monitor-body:
-	@$(MAKE) monitor SERVICES="$(BODY_SERVICES)" SESSION=body
+monitor-platform:
+	@$(MAKE) monitor SERVICES="$(PLATFORM_SERVICES)" SESSION=platform LAYOUT=v
 
 monitor-slam:
-	@$(MAKE) monitor SERVICES="$(SLAM_SERVICES)" SESSION=slam LAYOUT=v
+	@$(MAKE) monitor SERVICES="$(SLAM_SERVICE)" SESSION=slam LAYOUT=v
 
-monitor-nav:
-	@$(MAKE) monitor SERVICES="$(NAV_SERVICES)" SESSION=nav
+monitor-nav2:
+	@$(MAKE) monitor SERVICES="$(NAV2_SERVICE)" SESSION=nav LAYOUT=v
 
 monitor-robot:
 	@$(MAKE) monitor \
-		SERVICES="$(BODY_SERVICE) $(LIO_SAM_SERVICE) $(NAV2_SERVICE) $(RVIZ_SERVICE)" \
+		SERVICES="$(BODY_SERVICE) $(SLAM_SERVICE) $(NAV2_SERVICE) $(RVIZ_SERVICE) $(POWER_MONITOR_SERVICE)"  \
 		SESSION=robot \
 		LAYOUT=tiled
 
@@ -268,11 +322,13 @@ run-and-monitor: prepare-x11
 
 # Закрыть tmux сессию
 monitor-kill:
+	@$(MAKE) down-all
 	@tmux kill-session -t $(SESSION) 2>/dev/null && \
 		echo "==> Сессия '$(SESSION)' закрыта" || \
 		echo "Сессия '$(SESSION)' не найдена"
 
 monitor-kill-all:
+	@$(MAKE) down-all
 	@tmux kill-server 2>/dev/null && \
 		echo "==> Все tmux сессии закрыты" || \
 		echo "Нет активных tmux сессий"
@@ -292,7 +348,7 @@ help:
 	@echo "║                        ROS2 MAKE TARGETS                         ║"
 	@echo "╠══════════════════════════════════════════════════════════════════╣"
 	@echo "║  BUILD                                                           ║"
-	@echo "║    make build-body           — собрать body сервисы              ║"
+	@echo "║    make build-platform       — собрать platform сервисы		  ║"
 	@echo "║    make build-slam           — собрать SLAM сервисы              ║"
 	@echo "║    make build-nav            — собрать navigation                ║"
 	@echo "║    make build-sim            — собрать симуляцию                 ║"
@@ -321,6 +377,6 @@ help:
 	@echo "║    make logs  SERVICE=<name> — логи одного сервиса               ║"
 	@echo "║    make ps                   — статус контейнеров                ║"
 	@echo "╠══════════════════════════════════════════════════════════════════╣"
-	@echo "║  tmux: Ctrl+B → стрелки (панели), 0/1 (вкладки), d (detach)      ║"
+	@echo "║  tmux: Alt → стрелки (панели), 0/1 (вкладки), d (detach) 	      ║"
 	@echo "╚══════════════════════════════════════════════════════════════════╝"
 	@echo ""
