@@ -35,6 +35,7 @@
 //      (IROS). October 2018.
 
 #include "mapOptimization.h"
+#include <filesystem>
 #include <future>
 
 using namespace gtsam;
@@ -60,6 +61,11 @@ MapOptimization::MapOptimization(const std::string &name, Channel<AssociationOut
   pubHistoryKeyFrames = this->create_publisher<sensor_msgs::msg::PointCloud2>("/history_cloud", 2);
   pubIcpKeyFrames = this->create_publisher<sensor_msgs::msg::PointCloud2>("/corrected_cloud", 2);
   pubRecentKeyFrames = this->create_publisher<sensor_msgs::msg::PointCloud2>("/recent_cloud", 2);
+
+  srvSaveMap = this->create_service<cloud_msgs::srv::SaveMap>(
+    "lego_loam/save_map",
+    std::bind(&MapOptimization::saveMapCallback, this,
+              std::placeholders::_1, std::placeholders::_2));
 
   tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
 
@@ -237,7 +243,68 @@ void MapOptimization::publishGlobalMapThread()
     }
   }
 }
+void MapOptimization::saveMapCallback(
+    const std::shared_ptr<cloud_msgs::srv::SaveMap::Request> req,
+    std::shared_ptr<cloud_msgs::srv::SaveMap::Response> res)
+{
+    // Проверяем что есть что сохранять
+    if (cloudKeyPoses6D->points.empty()) {
+        RCLCPP_WARN(this->get_logger(), "saveMap: no key frames yet");
+        res->success = false;
+        return;
+    }
 
+    std::string dest = req->destination;
+    if (dest.empty()) dest = "/data/maps";
+
+    // Создаём директорию если не существует
+    std::filesystem::create_directories(dest);
+
+    // Накапливаем всю карту из ВСЕХ ключевых фреймов (не только соседних)
+    pcl::PointCloud<PointType>::Ptr globalCorner(new pcl::PointCloud<PointType>());
+    pcl::PointCloud<PointType>::Ptr globalSurf   (new pcl::PointCloud<PointType>());
+    pcl::PointCloud<PointType>::Ptr globalOutlier(new pcl::PointCloud<PointType>());
+
+    {
+        std::lock_guard<std::mutex> lock(mtx);
+        for (size_t i = 0; i < cloudKeyPoses6D->points.size(); ++i) {
+            *globalCorner  += *transformPointCloud(cornerCloudKeyFrames[i],
+                                                   &cloudKeyPoses6D->points[i]);
+            *globalSurf    += *transformPointCloud(surfCloudKeyFrames[i],
+                                                   &cloudKeyPoses6D->points[i]);
+            *globalOutlier += *transformPointCloud(outlierCloudKeyFrames[i],
+                                                   &cloudKeyPoses6D->points[i]);
+        }
+    }
+
+    // Объединяем surf + outlier в одно облако поверхностей
+    pcl::PointCloud<PointType>::Ptr globalMap(new pcl::PointCloud<PointType>());
+    *globalMap = *globalCorner + *globalSurf + *globalOutlier;
+
+    // Опциональный voxel downsampling (resolution=0 → без фильтрации)
+    if (req->resolution > 0.0f) {
+        pcl::VoxelGrid<PointType> ds;
+        ds.setLeafSize(req->resolution, req->resolution, req->resolution);
+
+        pcl::PointCloud<PointType>::Ptr tmp(new pcl::PointCloud<PointType>());
+        ds.setInputCloud(globalMap);
+        ds.filter(*tmp);
+        globalMap = tmp;
+    }
+
+    // Сохраняем
+    std::string path = dest + "/GlobalMap.pcd";
+    if (pcl::io::savePCDFileBinary(path, *globalMap) == -1) {
+        RCLCPP_ERROR(this->get_logger(), "saveMap: failed to write %s", path.c_str());
+        res->success = false;
+        return;
+    }
+
+    RCLCPP_INFO(this->get_logger(),
+        "saveMap: saved %zu points → %s",
+        globalMap->points.size(), path.c_str());
+    res->success = true;
+}
 void MapOptimization::loopClosureThread()
 {
   while(rclcpp::ok())

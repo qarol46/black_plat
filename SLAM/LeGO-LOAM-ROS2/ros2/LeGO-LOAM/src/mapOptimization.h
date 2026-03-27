@@ -2,6 +2,7 @@
 #define MAPOPTIMIZATION_H
 
 #include "lego_loam/utility.h"
+#include "cloud_msgs/srv/save_map.hpp"
 #include "lego_loam/channel.h"
 #include "lego_loam/nanoflann_pcl.h"
 
@@ -75,7 +76,12 @@ class MapOptimization : public rclcpp::Node {
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubIcpKeyFrames;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubRecentKeyFrames;
 
-  nav_msgs::msg::Odometry odomAftMapped;
+  rclcpp::Service<cloud_msgs::srv::SaveMap>::SharedPtr srvSaveMap;
+  void saveMapCallback(
+      const std::shared_ptr<cloud_msgs::srv::SaveMap::Request> req,
+      std::shared_ptr<cloud_msgs::srv::SaveMap::Response> res);
+  
+    nav_msgs::msg::Odometry odomAftMapped;
   geometry_msgs::msg::TransformStamped aftMappedTrans;
   std::shared_ptr<tf2_ros::TransformBroadcaster> tfBroadcaster;
 
