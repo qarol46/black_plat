@@ -32,7 +32,7 @@
 
 ## Структура проекта
 
-Проект основан на контейнеризации с помощью `docker compose`. Каждый функциональный блок вынесен в отдельный сервис. Всего выделено 4 функциональных группы: `body`, `SLAM`, `navigation`, `sim`.
+Проект основан на контейнеризации с помощью `docker compose`. Каждый функциональный блок вынесен в отдельный сервис. Всего выделено 4 функциональных группы: `body`, `SLAM`, `navigation`, `sim` и `visualization`.
 
 ### Общая структура репозитория
 
@@ -52,7 +52,7 @@ black_plat/
 │   ├── mesh/
 |   ├── tmux/               # Конфиг tmux → data/configs/tmux/tmux.conf
 │   └── rosbags/
-├── visualization/          # Инструменты и конфиги визуализации
+├── visualization/          # Инструменты визуализации
 ├── dds/                    # Конфигурация DDS (middleware ROS2)
 ├── materials/              # Вспомогательные материалы
 ├── docker-compose.yaml     # Корневой compose-файл
@@ -80,13 +80,13 @@ black_plat/
 
 Пакеты, относящиеся к управлению платформой и получению сенсорных данных.
 
-- [bluespace_ai_xsens_ros_mti_driver](body/ros2/bluespace_ai_xsens_ros_mti_driver/README.md) — драйвер IMU XSENS MTi. Конфиг устройства: [data/configs/body/](data/configs/body/).
+- [bluespace_ai_xsens_ros_mti_driver](body/ros2/bluespace_ai_xsens_ros_mti_driver/README.md) — драйвер IMU XSENS MTi.
 - [t21_lidar](body/ros2/t21_lidar/README.md) — драйверы Velodyne VLP-16.
 - [t21_camera](body/ros2/t21_camera/README.md) — драйвер камеры.
 - [ros2_control] — hardware-интерфейсы для управления платформой.
 - [t21_teleop] — пакет телеуправления реальной платформой.
 - [tracked_description](body/ros2/tracked_description/README.md) — описание робота (URDF/XACRO) и launch-файлы.
-- [power_monitor](https://github.com/dakolzin/USR-DR134-GUI.git) — мониторинг заряда аккумулятора. Устанавливается отдельно из [репозитория автора](https://github.com/dakolzin/USR-DR134-GUI.git).
+- [power_monitor](https://github.com/dakolzin/USR-DR134-GUI.git) — мониторинг заряда аккумулятора. [Репозиторий автора](https://github.com/dakolzin/USR-DR134-GUI.git).
 
 ---
 
@@ -229,8 +229,6 @@ docker compose down          # остановить и удалить конте
 ## Мониторинг через tmux
 
 `make monitor` запускает tmux-сессию, где каждый сервис из `SERVICES` открывается в отдельной панели с живыми логами. Дополнительно создаётся вкладка `shell` для управляющих команд.
-
-> Подробнее о конфиге tmux: [`data/configs/tmux/tmux.conf`](data/configs/tmux/tmux.conf)
 
 ### Быстрые сценарии
 
