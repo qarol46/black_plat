@@ -7,7 +7,7 @@ ROOT_DIR      := $(dir $(MKFILE_PATH))
 
 DISPLAY       ?= :0
 ROS_DOMAIN_ID ?= 0
-
+LOG_MODE 	  ?= true
 export DISPLAY ROS_DOMAIN_ID ROOT_DIR
 
 # ============================================================================ #
@@ -28,11 +28,11 @@ CARTOGRAPHER_SERVICE  ?= cartographer
 
 # Группы сервисов
 PLATFORM_SERVICES := $(BODY_SERVICE) $(TELEOP_SERVICE)
-SLAM_SERVICE := $(LIO_SAM_SERVICE)
-SIM_SERVICES  := $(SIM_SERVICE)
+SLAM_SERVICE      := $(LIO_SAM_SERVICE)
+SIM_SERVICES      := $(SIM_SERVICE)
 
-# Полный стек
-ALL_SERVICES  := $(PLATFORM_SERVICES) $(SLAM_SERVICE) $(RVIZ_SERVICE) $(POWER_MONITOR_SERVICE)
+# Полный стек (исправлено: было BODY_SERVICES — переменной не существовало)
+ALL_SERVICES  := $(BODY_SERVICE) $(SLAM_SERVICE) $(RVIZ_SERVICE) $(POWER_MONITOR_SERVICE)
 
 # Сервисы для запуска (переопределяется при вызове make)
 SERVICES      ?= $(ALL_SERVICES)
@@ -110,8 +110,12 @@ build-all:
 
 up: prepare-x11
 	@echo "==> Starting: $(SERVICES)"
-	@$(DC) up $(SERVICES)
-
+	ifeq ($(LOG_MODE),true)
+		@$(DC) up $(SERVICES)
+	else
+		@$(DC) up -d $(SERVICES)
+	endif
+				
 up-platform: prepare-x11
 	@$(MAKE) up SERVICES="$(PLATFORM_SERVICES)"
 
@@ -148,9 +152,6 @@ up-slam-toolbox: prepare-x11
 up-cartographer: prepare-x11
 	@$(MAKE) up SERVICES="$(CARTOGRAPHER_SERVICE)"
 
-# up-robot: prepare-x11
-# 	@$(MAKE) up SERVICES="$(BODY_SERVICES) $(LIO_SAM_SERVICE) $(RVIZ_SERVICE)"
-
 up-all: prepare-x11
 	@$(MAKE) up SERVICES="$(ALL_SERVICES)"
 
@@ -186,7 +187,7 @@ down-body:
 down-teleop:
 	@$(MAKE) down SERVICES="$(TELEOP_SERVICE)"
 
-down-powe-monitor:
+down-power-monitor:
 	@$(MAKE) down SERVICES="$(POWER_MONITOR_SERVICE)"
 
 down-lio-sam:
@@ -276,16 +277,15 @@ monitor:
 	done
 	@# Выравниваем панели
 	@tmux select-layout -t $(SESSION):logs $(call tmux_layout)
-	@# Включаем синхронизацию прокрутки между панелями (опционально, закомментируй если не нужно)
-	@# tmux setw -t $(SESSION):logs synchronize-panes on
 	@# Добавляем вкладку для управления (shell)
 	@tmux new-window -t $(SESSION) -n "shell"
 	@tmux send-keys -t $(SESSION):shell "echo 'Shell ready. Сервисы: $(SERVICES)'" Enter
 	@# Возвращаемся на вкладку с логами
 	@tmux select-window -t $(SESSION):logs
 	@echo "==> tmux сессия '$(SESSION)' запущена"
-	@echo "     Переключение между вкладками: Ctrl+B затем 0/1"
-	@echo "     Переключение между панелями:  Ctrl+B затем стрелки"
+	@echo "     Переключение между вкладками: Alt+1 / Alt+2"
+	@echo "     Переключение между панелями:  Alt+стрелки"
+	@echo "     Detach:                       Alt+d"
 	@echo "     Закрыть сессию:               make monitor-kill SESSION=$(SESSION)"
 	@tmux attach -t $(SESSION)
 
@@ -345,38 +345,48 @@ monitor-ls:
 help:
 	@echo ""
 	@echo "╔══════════════════════════════════════════════════════════════════╗"
-	@echo "║                        ROS2 MAKE TARGETS                         ║"
+	@echo "║                        ROS2 MAKE TARGETS                        ║"
 	@echo "╠══════════════════════════════════════════════════════════════════╣"
 	@echo "║  BUILD                                                           ║"
-	@echo "║    make build-platform       — собрать platform сервисы		  ║"
-	@echo "║    make build-slam           — собрать SLAM сервисы              ║"
-	@echo "║    make build-nav            — собрать navigation                ║"
-	@echo "║    make build-sim            — собрать симуляцию                 ║"
-	@echo "║    make build SERVICES="s1 s2" — собрать конкретные сервисы      ║"
+	@echo "║    make build-platform       — собрать platform сервисы         ║"
+	@echo "║    make build-slam           — собрать SLAM сервисы             ║"
+	@echo "║    make build-nav2           — собрать navigation               ║"
+	@echo "║    make build-sim            — собрать симуляцию                ║"
+	@echo "║    make build-all            — собрать все образы               ║"
+	@echo "║    make build SERVICES='s1 s2' — собрать конкретные сервисы     ║"
 	@echo "╠══════════════════════════════════════════════════════════════════╣"
 	@echo "║  UP / DOWN                                                       ║"
-	@echo "║    make up-robot             — body + lio-sam + rviz             ║"
-	@echo "║    make up-full-sim          — sim + rviz                        ║"
-	@echo "║    make up-slam              — все SLAM сервисы                  ║"
-	@echo "║    make up-lio-sam           — только lio-sam                    ║"
-	@echo "║    make up SERVICES="s1 s2"   — запустить конкретные             ║"
-	@echo "║    make down-all             — остановить все                    ║"
+	@echo "║    make up-all               — запустить весь стек (detached)   ║"
+	@echo "║    make up-platform          — body + teleop                    ║"
+	@echo "║    make up-slam              — SLAM сервис (lio-sam)            ║"
+	@echo "║    make up-lio-sam           — только lio-sam                   ║"
+	@echo "║    make up-sim               — симуляция                        ║"
+	@echo "║    make up SERVICES='s1 s2'  — запустить конкретные             ║"
+	@echo "║    make down-all             — остановить все                   ║"
 	@echo "╠══════════════════════════════════════════════════════════════════╣"
 	@echo "║  МОНИТОРИНГ (tmux)                                               ║"
-	@echo "║    make monitor              — логи всех сервисов                ║"
-	@echo "║    make monitor-robot        — логи robot стека (tiled)          ║"
-	@echo "║    make monitor-slam         — логи SLAM (вертикально)           ║"
-	@echo "║    make monitor SERVICES="s1 s2" LAYOUT=h|v|tiled                ║"
-	@echo "║    make run-and-monitor SERVICES="s1 s2" — up + monitor          ║"
-	@echo "║    make monitor-kill         — закрыть сессию ros                ║"
-	@echo "║    make monitor-kill SESSION=name — закрыть конкретную           ║"
-	@echo "║    make monitor-ls           — список активных сессий            ║"
+	@echo "║    make monitor              — логи ALL_SERVICES в панелях      ║"
+	@echo "║    make monitor-robot        — body+slam+nav2+rviz (tiled)      ║"
+	@echo "║    make monitor-platform     — body+teleop (вертикально)        ║"
+	@echo "║    make monitor-slam         — SLAM логи (вертикально)          ║"
+	@echo "║    make monitor SERVICES='s1 s2' LAYOUT=h|v|tiled               ║"
+	@echo "║    make run-and-monitor SERVICES='s1 s2' — up + monitor         ║"
+	@echo "║    make monitor-kill         — остановить сервисы + сессию      ║"
+	@echo "║    make monitor-kill SESSION=name — конкретная сессия            ║"
+	@echo "║    make monitor-kill-all     — остановить все сессии tmux       ║"
+	@echo "║    make monitor-ls           — список активных сессий           ║"
 	@echo "╠══════════════════════════════════════════════════════════════════╣"
 	@echo "║  ПРОЧЕЕ                                                          ║"
-	@echo "║    make shell SERVICE=<name> — bash внутри контейнера            ║"
-	@echo "║    make logs  SERVICE=<name> — логи одного сервиса               ║"
-	@echo "║    make ps                   — статус контейнеров                ║"
+	@echo "║    make shell SERVICE=<n>    — bash внутри контейнера           ║"
+	@echo "║    make logs  SERVICE=<n>    — follow логи одного сервиса       ║"
+	@echo "║    make ps                   — статус контейнеров               ║"
 	@echo "╠══════════════════════════════════════════════════════════════════╣"
-	@echo "║  tmux: Alt → стрелки (панели), 0/1 (вкладки), d (detach) 	      ║"
+	@echo "║  tmux (кастомный конфиг):                                        ║"
+	@echo "║    Alt+стрелки — переключение панелей                           ║"
+	@echo "║    Alt+1..9    — переключение окон                              ║"
+	@echo "║    Alt+h/v     — разделить панель горизонтально/вертикально     ║"
+	@echo "║    Alt+Enter   — новое окно                                     ║"
+	@echo "║    Alt+d       — detach от сессии                               ║"
+	@echo "║    Shift+drag  — выделить текст мышью в буфер терминала         ║"
 	@echo "╚══════════════════════════════════════════════════════════════════╝"
 	@echo ""
