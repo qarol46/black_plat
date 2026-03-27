@@ -1,20 +1,20 @@
 # ____________________________EXTENSTIONS___________________________
 x-env_slam: &env
   environment:
-    - "DISPLAY=$DISPLAY"
-    - "NVIDIA_VISIBLE_DEVICES=all"
-    - "NVIDIA_DRIVER_CAPABILITIES=all"
-    - "FASTRTPS_DEFAULT_PROFILES_FILE=/dds/fastdds_no_shm.xml"
+    - DISPLAY=$DISPLAY
+    - NVIDIA_VISIBLE_DEVICES=all
+    - NVIDIA_DRIVER_CAPABILITIES=all
+    - FASTRTPS_DEFAULT_PROFILES_FILE=/dds/fastdds_no_shm.xml
     - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
 
 x-vol: &vol
   volumes:
-    - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    - /tmp/.X11-unix:/tmp/.X11-unix
     - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
     - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
-    - "/etc/localtime:/etc/localtime:ro"
-    - "/etc/timezone:/etc/timezone:ro"
-    - "/dev/*:/dev/*"
+    - /etc/localtime:/etc/localtime:ro
+    - /etc/timezone:/etc/timezone:ro
+    - /dev/*:/dev/*
 
 x-deploy: &deploy
   deploy:
@@ -33,52 +33,71 @@ services:
       dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LIO_SAM/docker/Dockerfile
       additional_contexts:
         t21-rviz2: "service:rviz2"
-    # develop:
-    #   watch:
-    #     - action: rebuild
-    #       path: ./SLAM/LIO_SAM/ros2
-    #       target: /ros2_ws/src
-    #       ignore:
-    #         - config/
-    #     - action: sync+restart
-    #       path: SLAM/LIO_SAM/config
-    #       target: /ros2_ws/src/config
+    develop:
+      watch:
+        - action: rebuild
+          path: ./SLAM/LIO_SAM/ros2
+          target: /ros2_ws/src
+          ignore:
+            - config/
+        - action: sync+restart
+          path: SLAM/LIO_SAM/config
+          target: /ros2_ws/src/config
     privileged: true
     restart: always
     stdin_open: true
     tty: true
     network_mode: host 
     <<: [*env, *vol, *deploy]
-    #pre_stop:
-    #  - command: # TODO command to save map
+    stop_grace_period: 15s
+    stop_signal: SIGINT
+    pre_stop:
+      - command: >
+          bash -c "source /opt/ros/humble/setup.bash &&
+          source /ros2_ws/install/setup.bash &&
+          timeout 15s ros2 service call /lio_sam/save_map lio_sam/srv/SaveMap '{resolution: 0.2, destination: /data/maps/new_map}' || true"
     command: ros2 launch lio_sam run.launch.py
-  
-  liwo-sam:
-    container_name: liwo-sam
+  glim:
     build:
-      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LIWO_SAM/
-      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LIWO_SAM/docker/Dockerfile
-      additional_contexts:
-        t21-rviz2: "service:rviz2"
-    # develop:
-    #   watch:
-    #     - action: rebuild
-    #       path: ./SLAM/LIO_SAM/ros2
-    #       target: /ros2_ws/src
-    #       ignore:
-    #         - config/
-    #     - action: sync+restart
-    #       path: SLAM/LIO_SAM/config
-    #       target: /ros2_ws/src/config
-    privileged: true
-    restart: always
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/GLIM/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/GLIM/docker/Dockerfile
+    container_name: glim
+    network_mode: host
+    ipc: host
+    pid: host
     stdin_open: true
     tty: true
-    network_mode: host 
+    privileged: true
     <<: [*env, *vol, *deploy]
-    #pre_stop:
-    #  - command: # TODO command to save map
-    command: ros2 launch liwo_sam run.launch.py
+    devices:
+      - /dev/dri:/dev/dri
+    command: ros2 run glim_ros glim_rosnode --ros-args -p config_path:=/ros2_ws/src/glim/config
+  # liwo-sam:
+  #   container_name: liwo-sam
+  #   build:
+  #     context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LIWO_SAM/
+  #     dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LIWO_SAM/docker/Dockerfile
+  #     additional_contexts:
+  #       t21-rviz2: "service:rviz2"
+  #   # develop:
+  #   #   watch:
+  #   #     - action: rebuild
+  #   #       path: ./SLAM/LIO_SAM/ros2
+  #   #       target: /ros2_ws/src
+  #   #       ignore:
+  #   #         - config/
+  #   #     - action: sync+restart
+  #   #       path: SLAM/LIO_SAM/config
+  #   #       target: /ros2_ws/src/config
+  #   privileged: true
+  #   restart: always
+  #   stdin_open: true
+  #   tty: true
+  #   network_mode: host 
+  #   <<: [*env, *vol, *deploy]
+  #   #pre_stop:
+  #   #  - command: # TODO command to save map
+  #   command: ros2 launch liwo_sam run.launch.py
 
   lego-loam:
     container_name: lego-loam
@@ -107,7 +126,9 @@ services:
     network_mode: host
     <<: [*env, *vol, *deploy]
     pre_stop:
-    - command: # TODO command to save map
+    - command: >
+        bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash &&
+        ros2 service call /lego_loam/save_map cloud_msgs/srv/SaveMap '{resolution: 0.4, destination: /data/maps/new_map}'"
     command: ros2 launch lego_loam_sr run.launch.py
   cartographer:
     container_name: cartographer
