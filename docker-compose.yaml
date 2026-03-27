@@ -10,7 +10,8 @@ include:
   - ${ROOT_DIR:-/home/tms/Projects/black_plat}/navigation/docker-compose.yaml
   #_____________________________________Sim_______________________________________
   - ${ROOT_DIR:-/home/tms/Projects/black_plat}/sim/docker-compose.yaml
-
+  #_____________________________________Additional________________________________
+  - ${ROOT_DIR:-/home/tms/Projects/black_plat}/additional/docker-compose.yaml
 
 # Chose servises to run by using profiles instaed of makefile
 #COMPOSE_PROFILES=frontend,debug
