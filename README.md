@@ -185,12 +185,26 @@ sudo systemctl restart docker
 
 ### Настройка tmux (опционально)
 
-Конфигурационный файл находится в [`data/configs/tmux/tmux.conf`](data/configs/tmux/tmux.conf).
+Конфигурационный файл находится в [`data/tmux/tmux.conf`](data/tmux/tmux.conf).
 Для использования скопируй его в стандартное место:
-
 ```bash
 mkdir -p ~/.config/tmux
-cp data/configs/tmux/tmux.conf ~/.config/tmux/tmux.conf
+cp data/tmux/tmux.conf ~/.config/tmux/tmux.conf
+```
+
+Установи менеджер плагинов tpm и плагины:
+```bash
+# Клонировать tpm
+git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+
+# Установить плагины
+~/.config/tmux/plugins/tpm/bin/install_plugins
+```
+
+Перезапусти tmux чтобы изменения вступили в силу:
+```bash
+tmux kill-server
+tmux
 ```
 
 ---
@@ -324,11 +338,15 @@ make monitor-ls
 | `Alt + /` | Поиск вниз в логах (copy-mode) |
 | `Alt + ?` | Поиск вверх в логах (copy-mode) |
 | `Shift + drag` | Выделить текст мышью в буфер **терминала** |
-| `Ctrl + b & Ctrl + s` | Сохранить сессию |
+
+> Для сохранения сессии перед перезагрузкой используй `Ctrl+B`, затем `Ctrl+S`.
+> После перезагрузки просто запусти `tmux` — сессия восстановится автоматически.
 
 > В режиме copy-mode: `v` — начать выделение, `y` — скопировать в буфер обмена (wl-copy / xclip).
 
 > **При выделении мышью строк для копирования они сохраняются в буфер автоматически.**
+
+> [Подробности в видео](https://www.youtube.com/watch?v=GnP_SsMPNro&pp=ygUPYW1wZWVyc2FuZCB0bXV4)
 ---
 
 ## Известные проблемы
