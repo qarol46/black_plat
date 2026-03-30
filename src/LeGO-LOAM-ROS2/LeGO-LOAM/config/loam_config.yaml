@@ -19,7 +19,7 @@ map_optimization:
     mapping:
       enable_loop_closure: true
 
-      surrounding_keyframe_search_radius: 50.0   # key frame that is within n meters from current pose will be considered for scan-to-map optimization (when loop closure disabled)
+      surrounding_keyframe_search_radius: 7.5   # key frame that is within n meters from current pose will be considered for scan-to-map optimization (when loop closure disabled)
       surrounding_keyframe_search_num: 50        # submap size (when loop closure enabled)
 
       history_keyframe_search_radius: 7.0        # key frame that is within n meters from current pose will be considerd for loop closure

@@ -58,13 +58,13 @@
         <ros>
           <remapping>~/out:=/imu/data_raw</remapping>
         </ros>
-        <!--topicName>imu/data_raw</topicName>
+        <!--topicName>imu/data</topicName-->
         <bodyName>xsens_link</bodyName>
         <updateRateHZ>100.0</updateRateHZ>
-        <gaussianNoise>0.001</gaussianNoise>
+        <!--gaussianNoise>0.002</gaussianNoise-->
         <xyzOffset>0 0 0</xyzOffset>
         <rpyOffset>0 0 0</rpyOffset>
-        <frameName>xsens_link</frameName-->
+        <!--frameName>xsens_link</frameName-->
       </plugin>
     </sensor>
   </gazebo>

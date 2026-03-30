@@ -14,7 +14,7 @@ class SimpleGroundTruth(Node):
         super().__init__('simple_gz_ground_truth')
         
         # Параметры
-        self.declare_parameter('model_name', 'go1')
+        self.declare_parameter('model_name', 'my_bot1')
         self.model_name = self.get_parameter('model_name').value
         
         self.publisher_ = self.create_publisher(Odometry, '/gazebo/ground_truth', 10)

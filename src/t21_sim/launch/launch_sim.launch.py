@@ -62,7 +62,7 @@ def generate_launch_description():
     #)
     
     # Запуск Gazebo
-    gazebo_world_file = os.path.join(get_package_share_directory(package_name), 'worlds', 'playground.world')
+    gazebo_world_file = os.path.join(get_package_share_directory(package_name), 'worlds', 'warehouse.world')
     gazebo_params_file = os.path.join(get_package_share_directory(package_name), 'config', 'gazebo_params.yaml')
 
     gazebo = IncludeLaunchDescription(
@@ -77,7 +77,11 @@ def generate_launch_description():
     spawn_entity = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
-        arguments=['-topic', 'robot_description', '-entity', 'my_bot1'],
+        arguments=['-topic', 'robot_description', 
+                   '-entity', 'my_bot1',
+                   '-x', '0.0',
+                   '-y', '0.0',
+                   '-z', '0.35'],
         output='screen'
     )
 
@@ -113,6 +117,11 @@ def generate_launch_description():
         package="controller_manager",
         executable="spawner",
         arguments=["geom_position_controller"]
+    )
+
+    ground_truth = Node(
+        package="ground_truth_publisher",
+        executable="simple_ground_truth",
     )
 
     odometry_fus_config = os.path.join(get_package_share_directory(package_name), 'config', 'odometry_fus.yaml')
@@ -164,6 +173,7 @@ def generate_launch_description():
         diff_drive_spawner,
         joint_broad_spawner,
         geom_pos_spawner,
+        ground_truth,
         #odometry_fus_node,
         #robot_localization_node,
         #start_rviz_cmd,

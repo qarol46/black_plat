@@ -49,7 +49,7 @@ def generate_launch_description():
     executable='lego_loam_sr',
     output='screen',
     parameters=[config_file],
-    #remappings=[('/velodyne_points', '/velodyne_points')],
+    remappings=[('/velodyne_points', '/eve/lidar3d')],
   )
 
   # Rviz

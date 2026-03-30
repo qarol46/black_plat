@@ -18,7 +18,7 @@ class MultiOdomParserNode(Node):
         super().__init__('bag_parser_node')
         
         # Параметры ноды
-        self.declare_parameter('odom_topics', ['/aft_mapped_to_init'])
+        self.declare_parameter('odom_topics', ['/liwo_sam/mapping/odometry'])
         self.declare_parameter('output_directory', 'output_csv')
         self.declare_parameter('update_rate', 2.0)  # Hz
         self.declare_parameter('use_best_effort', True)  # Новый параметр для QoS

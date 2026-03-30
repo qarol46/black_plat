@@ -20,7 +20,7 @@
                 min_angle="-3.14159265359"  
                 max_angle="3.14159265359" 
                 gpu="false">
-                <origin xyz="0 0 0" rpy="0 0 0" />
+                <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
    </xacro:VLP-16>
   
   <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro" />
