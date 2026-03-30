@@ -110,11 +110,11 @@ build-all:
 
 up: prepare-x11
 	@echo "==> Starting: $(SERVICES)"
-	ifeq ($(LOG_MODE),true)
-		@$(DC) up $(SERVICES)
-	else
-		@$(DC) up -d $(SERVICES)
-	endif
+	@if [ "$(LOG_MODE)" = "true" ]; then \
+		$(DC) up $(SERVICES); \
+	else \
+		$(DC) up -d $(SERVICES); \
+	fi
 				
 up-platform: prepare-x11
 	@$(MAKE) up SERVICES="$(PLATFORM_SERVICES)"

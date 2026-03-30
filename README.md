@@ -128,18 +128,58 @@ black_plat/
 ### Установка Docker Desktop (Ubuntu)
 
 ```bash
-sudo apt-get update
-sudo apt install ./docker-desktop-amd64.deb
+# Add Docker's official GPG key:
+sudo apt update 
+sudo apt install -y ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+sudo apt update
+
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
 ### Установка NVIDIA Container Toolkit (если используется GPU)
 
+**Установка с apt: Ubuntu**
+
 ```bash
-distribution=$(. /etc/os-release; echo $ID$VERSION_ID)
-curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
-curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list \
-  | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
-sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+# Install the prerequisites 
+sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+   ca-certificates \
+   curl \
+   gnupg2
+```
+```bash
+# Configure the production repository
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+  && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+```
+```bash
+sudo apt-get update
+export NVIDIA_CONTAINER_TOOLKIT_VERSION=1.19.0-1
+sudo apt-get install -y \
+      nvidia-container-toolkit=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+      nvidia-container-toolkit-base=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+      libnvidia-container-tools=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+      libnvidia-container1=${NVIDIA_CONTAINER_TOOLKIT_VERSION}
+```
+**Configuration**
+```bash
+sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 ```
 
@@ -284,9 +324,11 @@ make monitor-ls
 | `Alt + /` | Поиск вниз в логах (copy-mode) |
 | `Alt + ?` | Поиск вверх в логах (copy-mode) |
 | `Shift + drag` | Выделить текст мышью в буфер **терминала** |
+| `Ctrl + b & Ctrl + s` | Сохранить сессию |
 
 > В режиме copy-mode: `v` — начать выделение, `y` — скопировать в буфер обмена (wl-copy / xclip).
 
+> **При выделении мышью строк для копирования они сохраняются в буфер автоматически.**
 ---
 
 ## Известные проблемы
