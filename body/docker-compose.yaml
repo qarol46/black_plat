@@ -4,8 +4,7 @@ x-env: &env
   environment:
     - DISPLAY=${DISPLAY}
     - QT_X11_NO_MITSHM=1
-    #- RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
-    #- CYCLONEDDS_URI=${CYCLONEDDS_URI:-rmw_cyclonedds_cpp}
+    - FASTRTPS_DEFAULT_PROFILES_FILE=/dds/fastdds_no_shm.xml
     - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
 # ____________________________SERVICES___________________________
 services:
@@ -62,12 +61,13 @@ services:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
     volumes:
       - /dev:/dev:ro  
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
     devices:  
       - /dev/input:/dev/input 
     stdin_open: true
     restart: always
     tty: true
-    command: ros2 launch t21_teleop joy_platform_teleop.launch.py
+    command: ros2 launch t21_teleop joy_full_teleop.launch.py
   power_monitor:
     container_name: power_monitor
     build:
