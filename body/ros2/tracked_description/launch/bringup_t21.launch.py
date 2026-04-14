@@ -31,6 +31,10 @@ def generate_launch_description() -> LaunchDescription:
         'use_imu', default_value='True',
         description='Use Xsens IMU',
     )
+    declare_use_rviz = DeclareLaunchArgument(
+        'use_rviz', default_value='False',
+        description='Use RViz',
+    )
 
     env_path_arg = [('env_path', LaunchConfiguration('env_path'))]
 
@@ -67,7 +71,7 @@ def generate_launch_description() -> LaunchDescription:
 
     controller_parameters = PathJoinSubstitution([LaunchConfiguration('env_path'), 'configs', 'body', 'tracked_config', 'controllers.yaml'])
     cm_ns = '/controller_manager'
-
+    rviz_config_file = PathJoinSubstitution([LaunchConfiguration('env_path'), 'rviz2', 'navigation.rviz'])
     nodes = [
         Node(
             package='robot_state_publisher',
@@ -106,10 +110,18 @@ def generate_launch_description() -> LaunchDescription:
             arguments=[
                 'geom_position_controller',
                 '--controller-manager', cm_ns,
-                '--controller-type', 'geom_position_controller/ForwardCommandController',
+                '--controller-type', 'forward_command_controller/ForwardCommandController',
                 '--param-file', controller_parameters,
             ],
             output='screen',
+        ),
+        Node(
+            package='rviz2',
+            executable='rviz2',
+            name='rviz2',
+            arguments=['-d', rviz_config_file],
+            output='screen',
+            condition=IfCondition(LaunchConfiguration('use_rviz')),
         ),
     ]
 
@@ -119,6 +131,7 @@ def generate_launch_description() -> LaunchDescription:
         declare_use_lidar_cmd,
         declare_use_camera_cmd,
         declare_use_imu_cmd,
+        declare_use_rviz,
         start_lidar,
         start_camera,
         imu_launch,

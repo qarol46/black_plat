@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
     
-  <xacro:property name="camera_translation" value="0.06 0.09 0.018"/>
+  <xacro:property name="camera_translation" value="0.1739 0.0 0.026"/>
   <xacro:unless value = "$(arg use_sim_time)">
     <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro"/>
     <!-- Аргументы realsense -->
@@ -10,7 +10,7 @@
     <xacro:arg name="add_plug" default="false" />
     <xacro:arg name="use_mesh" default="true" />
     <xacro:sensor_d435 parent="big_box_link" use_nominal_extrinsics="$(arg use_nominal_extrinsics)" add_plug="$(arg add_plug)" use_mesh="$(arg use_mesh)">
-      <origin xyz="${camera_translation}" rpy="0 0.015 0"/>
+      <origin xyz="${camera_translation}" rpy="0 0 0"/>
     </xacro:sensor_d435>
   </xacro:unless>
   <xacro:if value="$(arg use_sim_time)">
