@@ -69,8 +69,8 @@ MapOptimization::MapOptimization(const std::string &name, Channel<AssociationOut
 
   tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
 
-  downSizeFilterCorner.setLeafSize(0.2, 0.2, 0.2);
-  downSizeFilterSurf.setLeafSize(0.4, 0.4, 0.4);
+  downSizeFilterCorner.setLeafSize(0.05, 0.05, 0.05);
+  downSizeFilterSurf.setLeafSize(0.1, 0.1, 0.1);
   downSizeFilterOutlier.setLeafSize(0.4, 0.4, 0.4);
 
   // for histor key frames of loop closure
@@ -79,9 +79,9 @@ MapOptimization::MapOptimization(const std::string &name, Channel<AssociationOut
   downSizeFilterSurroundingKeyPoses.setLeafSize(1.0, 1.0, 1.0);
 
   // for global map visualization
-  downSizeFilterGlobalMapKeyPoses.setLeafSize(1.0, 1.0, 1.0);
+  downSizeFilterGlobalMapKeyPoses.setLeafSize(0.1, 0.1, 0.1);
   // for global map visualization
-  downSizeFilterGlobalMapKeyFrames.setLeafSize(0.4, 0.4, 0.4);
+  downSizeFilterGlobalMapKeyFrames.setLeafSize(0.1, 0.1, 0.1);
 
   odomAftMapped.header.frame_id = "camera_init";
   odomAftMapped.child_frame_id = "aft_mapped";
