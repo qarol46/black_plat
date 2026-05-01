@@ -41,3 +41,65 @@ services:
     tty: true
     shm_size: '2gb' 
     command: ros2 launch pcl_filter dsor.launch.py
+  crop_filter:
+    container_name: crop_filter
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/additional/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/additional/docker/Dockerfile
+      additional_contexts:
+        t21-rviz2: "service:rviz2"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./additional/ros2
+          target: /ros2_ws/src
+    network_mode: host
+    << : *env
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev:/dev:ro  
+      - /lib/modules:/lib/modules:ro 
+      - /sys/class/video4linux:/sys/class/video4linux:ro 
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+    devices:  
+      - /dev/bus/usb:/dev/bus/usb
+      - /dev/video0:/dev/video0
+      - /dev/input:/dev/input 
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    shm_size: '2gb' 
+    command: ros2 run your_pkg angular_crop --ros-args -p angle_min_deg:=-90.0 -p angle_max_deg:=90.0 -p input_topic:=/velodyne_points
+  clahe_filter:
+    container_name: clahe_filter
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/additional/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/additional/docker/Dockerfile
+      additional_contexts:
+        t21-rviz2: "service:rviz2"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./additional/ros2/
+          target: /ros2_ws/src
+    network_mode: host
+    << : *env
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev:/dev:ro  
+      - /lib/modules:/lib/modules:ro 
+      - /sys/class/video4linux:/sys/class/video4linux:ro 
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+    devices:  
+      - /dev/bus/usb:/dev/bus/usb
+      - /dev/video0:/dev/video0
+      - /dev/input:/dev/input 
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    shm_size: '2gb' 
+    command: sleep infinity #ros2 launch clahe_ros clahe.launch.py 
