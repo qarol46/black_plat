@@ -11,7 +11,7 @@ namespace t21_hardware
 constexpr double G = 30.75;
 constexpr double R = 0.072;
 constexpr double L = 0.374;
-constexpr double MIN_G_DEG = 180.0;
+constexpr double MIN_G_DEG = 120.0;
 constexpr double MAX_G_DEG = 300.0;
 constexpr double MIN_G_RAD = MIN_G_DEG * M_PI / 180.0;
 constexpr double MAX_G_RAD = MAX_G_DEG * M_PI / 180.0;

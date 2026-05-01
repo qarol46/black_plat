@@ -67,7 +67,7 @@ services:
     stdin_open: true
     restart: always
     tty: true
-    command: ros2 launch t21_teleop joy_full_teleop.launch.py
+    command: ros2 launch t21_teleop joy_platform_teleop.launch.py
   power_monitor:
     container_name: power_monitor
     build:

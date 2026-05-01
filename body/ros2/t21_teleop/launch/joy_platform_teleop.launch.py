@@ -23,9 +23,9 @@ def generate_launch_description():
             parameters=[{
                 # оси движения
                 'axis_lin': 1,
-                'axis_ang': 0,
+                'axis_ang': 3,
                 'scale_lin': 0.3,
-                'scale_ang': 0.5,
+                'scale_ang': 1.0,
 
                 'deadzone': 0.05
             }]

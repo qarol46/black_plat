@@ -16,7 +16,7 @@ class JoyFullTeleop(Node):
         self.declare_parameter('axis_ang',        0)    # левый стик X
 
         self.declare_parameter('scale_lin',       0.3)  # м/с
-        self.declare_parameter('scale_ang',       0.5)  # рад/с
+        self.declare_parameter('scale_ang',       1.0)  # рад/с
         self.declare_parameter('deadzone',        0.05)
 
         p = self.get_parameter

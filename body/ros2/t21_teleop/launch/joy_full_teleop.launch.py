@@ -23,13 +23,13 @@ def generate_launch_description():
             parameters=[{
                 # оси движения
                 'axis_lin': 1,
-                'axis_ang': 0,
+                'axis_ang': 3,
                 'scale_lin': 0.5,
                 'scale_ang': 1.0,
 
                 # кнопки флиппера
-                'btn_flip_up':   5,          # RB
-                'btn_flip_down': 4,          # LB
+                'btn_flip_up':   4,          # RB
+                'btn_flip_down': 5,          # LB
                 'flip_step_deg': 2.0,        # шаг, град
 
                 'deadzone': 0.05
