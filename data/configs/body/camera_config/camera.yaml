@@ -14,7 +14,7 @@
     output: "screen" # pipe node output [screen|log]
   
     # Color stream parameters
-    enable_color: false # enable color stream
+    enable_color: true # enable color stream
     rgb_camera.color_profile: "640x480x30" # color stream profile
     rgb_camera.color_format: "RGB8" # color stream format
     rgb_camera.enable_auto_exposure: true # enable/disable auto exposure for color image
@@ -22,7 +22,7 @@
   
     # Depth and infrared parameters
     enable_depth: true # enable depth stream
-    enable_infra: true # enable infra0 stream
+    enable_infra: false # enable infra0 stream
     enable_infra1: true # enable infra1 stream
     enable_infra2: true # enable infra2 stream
     depth_module.depth_profile: "640x480x30" # depth stream profile
@@ -48,7 +48,7 @@
     enable_accel: true # enable accel stream
     gyro_fps: 0 # 
     accel_fps: 0 # 
-    unite_imu_method: 0 # [0-None, 1-copy, 2-linear_interpolation]
+    unite_imu_method: 2 # [0-None, 1-copy, 2-linear_interpolation]
   
     # Filter and processing parameters
     clip_distance: -2.0 # 
@@ -63,10 +63,10 @@
     pointcloud.stream_filter: 2 # texture stream for pointcloud
     pointcloud.stream_index_filter: 0 # texture stream index for pointcloud
     pointcloud.ordered_pc: false # 
-    pointcloud.allow_no_texture_points: true # 
+    pointcloud.allow_no_texture_points: false # 
   
     # Filter enablement parameters
-    align_depth.enable: false # enable align depth filter
+    align_depth.enable: true # enable align depth filter
     colorizer.enable: false # enable colorizer filter
     decimation_filter.enable: false # enable_decimation_filter
     spatial_filter.enable: false # enable_spatial_filter
