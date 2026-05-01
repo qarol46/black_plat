@@ -23,16 +23,17 @@ TELEOP_SERVICE        ?= teleop
 POWER_MONITOR_SERVICE ?= power_monitor
 LIO_SAM_SERVICE       ?= lio-sam
 LEGO_LOAM_SERVICE     ?= lego-loam
+LIWO_SAM_SERVICE      ?= liwo-sam
 SLAM_TOOLBOX_SERVICE  ?= slam_toolbox
 CARTOGRAPHER_SERVICE  ?= cartographer
 
 # Группы сервисов
 PLATFORM_SERVICES := $(BODY_SERVICE) $(TELEOP_SERVICE)
-SLAM_SERVICE      := $(LIO_SAM_SERVICE)
+SLAM_SERVICE      := $(LIWO_SAM_SERVICE)
 SIM_SERVICES      := $(SIM_SERVICE)
 
 # Полный стек (исправлено: было BODY_SERVICES — переменной не существовало)
-ALL_SERVICES  := $(BODY_SERVICE) $(SLAM_SERVICE) $(RVIZ_SERVICE) $(POWER_MONITOR_SERVICE)
+ALL_SERVICES  := $(BODY_SERVICE) $(TELEOP_SERVICE) $(POWER_MONITOR_SERVICE) $(SLAM_SERVICE)
 
 # Сервисы для запуска (переопределяется при вызове make)
 SERVICES      ?= $(ALL_SERVICES)
@@ -58,7 +59,7 @@ prepare-x11:
 
 .PHONY: build build-platform build-slam build-nav2 build-sim build-rviz \
 		build-body build-teleop build-power-monitor build-lio-sam build-lego-loam \
-		build-slam-toolbox build-cartographer
+		build-liwo-sam build-slam-toolbox build-cartographer
 
 build:
 	@echo "==> Building: $(SERVICES)"
@@ -91,6 +92,9 @@ build-lio-sam:
 build-lego-loam:
 	@$(MAKE) build SERVICES="$(LEGO_LOAM_SERVICE)"
 
+build-liwo-sam:
+	@$(MAKE) build SERVICES="$(LIWO_SAM_SERVICE)"
+
 build-slam-toolbox:
 	@$(MAKE) build SERVICES="$(SLAM_TOOLBOX_SERVICE)"
 
@@ -106,14 +110,14 @@ build-all:
 
 .PHONY: up up-platform up-slam up-nav2 up-sim up-rviz \
 		up-body up-teleop up-power-monitor up-lio-sam up-lego-loam \
-		up-slam-toolbox up-cartographer
+		up-liwo-sam up-slam-toolbox up-cartographer
 
 up: prepare-x11
 	@echo "==> Starting: $(SERVICES)"
 	@if [ "$(LOG_MODE)" = "true" ]; then \
-		$(DC) up $(SERVICES); \
+		$(DC) up --no-build $(SERVICES); \
 	else \
-		$(DC) up -d $(SERVICES); \
+		$(DC) up --no-build -d $(SERVICES); \
 	fi
 				
 up-platform: prepare-x11
@@ -146,6 +150,9 @@ up-lio-sam: prepare-x11
 up-lego-loam: prepare-x11
 	@$(MAKE) up SERVICES="$(LEGO_LOAM_SERVICE)"
 
+up-liwo-sam: prepare-x11
+	@$(MAKE) up SERVICES="$(LIWO_SAM_SERVICE)"
+
 up-slam-toolbox: prepare-x11
 	@$(MAKE) up SERVICES="$(SLAM_TOOLBOX_SERVICE)"
 
@@ -161,7 +168,7 @@ up-all: prepare-x11
 
 .PHONY: down down-platform down-slam down-nav2 down-sim down-rviz \
 		down-body down-teleop down-power-monitor down-lio-sam down-lego-loam \
-		down-slam-toolbox down-cartographer
+		dpwn-liwo-sam down-slam-toolbox down-cartographer
 down:
 	@echo "==> Stopping: $(SERVICES)"
 	@$(DC) stop $(SERVICES)
@@ -195,6 +202,9 @@ down-lio-sam:
 
 down-lego-loam:
 	@$(MAKE) down SERVICES="$(LEGO_LOAM_SERVICE)"
+
+down-liwo-sam:
+	@$(MAKE) down SERVICES="$(LIWO_SAM_SERVICE)"
 
 down-slam-toolbox:
 	@$(MAKE) down SERVICES="$(SLAM_TOOLBOX_SERVICE)"
@@ -268,11 +278,11 @@ monitor:
 				-x "$(shell tput cols 2>/dev/null || echo 220)" \
 				-y "$(shell tput lines 2>/dev/null || echo 50)"; \
 			tmux send-keys -t $(SESSION):logs \
-				"$(DC) up $$service" Enter; \
+				"$(DC) up $$service --no-build" Enter; \
 			first=0; \
 		else \
 			tmux split-window -t $(SESSION):logs \
-				"$(DC) up $$service"; \
+				"$(DC) up $$service --no-build"; \
 		fi; \
 	done
 	@# Выравниваем панели
@@ -304,7 +314,7 @@ monitor-nav2:
 
 monitor-robot:
 	@$(MAKE) monitor \
-		SERVICES="$(BODY_SERVICE) $(SLAM_SERVICE) $(NAV2_SERVICE) $(RVIZ_SERVICE) $(POWER_MONITOR_SERVICE)"  \
+		SERVICES="$(BODY_SERVICE) $(SLAM_SERVICE) $(NAV2_SERVICE)$(POWER_MONITOR_SERVICE)"  \
 		SESSION=robot \
 		LAYOUT=tiled
 

@@ -174,9 +174,9 @@ public:
         declare_parameter("gpsTopic", "lio_sam/odometry/gps");
         get_parameter("gpsTopic", gpsTopic);
 
-        declare_parameter("lidarFrame", "laser_data_frame");
+        declare_parameter("lidarFrame", "lidar_link");
         get_parameter("lidarFrame", lidarFrame);
-        declare_parameter("baselinkFrame", "base_link");
+        declare_parameter("baselinkFrame", "lidar_link");
         get_parameter("baselinkFrame", baselinkFrame);
         declare_parameter("odometryFrame", "odom");
         get_parameter("odometryFrame", odometryFrame);
