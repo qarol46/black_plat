@@ -77,7 +77,6 @@
 #include "messagepublishers/pressurepublisher.h"
 #include "messagepublishers/temperaturepublisher.h"
 #include "messagepublishers/timereferencepublisher.h"
-#include "messagepublishers/transformpublisher.h"
 #include "messagepublishers/twistpublisher.h"
 #include "messagepublishers/velocityincrementpublisher.h"
 #include "messagepublishers/positionllapublisher.h"
@@ -170,10 +169,6 @@ void XdaInterface::registerPublishers()
 	if (get_parameter("pub_free_acceleration", should_publish) && should_publish)
 	{
 		registerCallback(new FreeAccelerationPublisher(node));
-	}
-	if (get_parameter("pub_transform", should_publish) && should_publish)
-	{
-		registerCallback(new TransformPublisher(node));
 	}
 	if (get_parameter("pub_positionLLA", should_publish) && should_publish)
 	{
