@@ -2,15 +2,8 @@
 <robot name="t21" xmlns:xacro="http://ros.org/wiki/xacro">
   <!-- Объявляем аргументы -->
   <xacro:arg name="prefix" default=""/>
-  <!-- Использовать симуляцию -->
-  <xacro:arg name="use_sim_time" default="false"/>
   <!-- Геометрия -->
-  <xacro:unless value="$(arg use_sim_time)">
-    <xacro:include filename="$(find tracked_description)/urdf/tracked_robot.urdf.xacro"/>
-  </xacro:unless>
-  <xacro:if value="$(arg use_sim_time)">
-    <xacro:include filename="$(find t21_sim)/urdf/tracked_robot.urdf.xacro"/>
-  </xacro:if>
+  <xacro:include filename="$(find tracked_description)/urdf/tracked_robot.urdf.xacro"/>
   <!-- Блок ros2_control -->
   <xacro:include filename="$(find tracked_description)/config/t21.ros2_control.xacro"/>
   <!-- Блок описания LiDAR -->
