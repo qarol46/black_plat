@@ -3,8 +3,8 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     param_dict = {
-        'clahe_clip_limit_sky': 0.0,
-        'clahe_grid_size_sky': 0,
+        'clahe_clip_limit_sky': 2.0,
+        'clahe_grid_size_sky': 2,
         'rect_sky_x': 70,
         'rect_sky_y': 0,
         'rect_sky_w': 500,

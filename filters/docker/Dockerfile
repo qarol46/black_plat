@@ -6,10 +6,9 @@ ENV LC_ALL C.UTF-8
 ENV TZ=Europe/Moscow
 ENV ROS_DISTRO=humble
 
-RUN apt-get update --fix-missing
-
-# ── Lidar / pointcloud deps (existing) ────────────────────────────────────────
-RUN apt-get install -y \
+# ── Lidar & clahe_ros deps ────────────────────────────────────────────────────
+RUN apt-get update --fix-missing && \
+    apt-get install --fix-missing -y \
     ros-$ROS_DISTRO-sensor-msgs \
     ros-$ROS_DISTRO-velodyne-msgs \
     ros-$ROS_DISTRO-velodyne-pointcloud \
@@ -18,22 +17,14 @@ RUN apt-get install -y \
     ros-$ROS_DISTRO-pcl-conversions \
     ros-$ROS_DISTRO-pcl-msgs \
     ros-$ROS_DISTRO-pcl-ros \
-    ros-$ROS_DISTRO-perception-pcl && \
-    pip install open3d scipy && \
-    rm -rf /var/lib/apt/lists/*
-
-# ── clahe_ros deps ─────────────────────────────────────────────────────────────
-# cv_bridge в Humble требует python3-opencv как транзитивную зависимость;
-# image-transport-plugins даёт compressed/raw транспорты из коробки
-RUN apt-get update && apt-get install -y \
+    ros-$ROS_DISTRO-perception-pcl \
     ros-$ROS_DISTRO-cv-bridge \
     ros-$ROS_DISTRO-image-transport \
     ros-$ROS_DISTRO-image-transport-plugins \
-    ros-$ROS_DISTRO-sensor-msgs \
     ros-$ROS_DISTRO-message-filters \
     libopencv-dev \
-    python3-opencv \
-    && pip install "numpy<2.0" && \
+    python3-opencv && \
+    pip install open3d scipy numba "numpy<2.0" && \
     rm -rf /var/lib/apt/lists/*
 
 # ── Sources & build ────────────────────────────────────────────────────────────

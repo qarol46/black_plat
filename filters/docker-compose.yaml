@@ -13,14 +13,14 @@ services:
   lidar_filter:
     container_name: lidar_filter
     build:
-      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/additional/
-      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/additional/docker/Dockerfile
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/docker/Dockerfile
       additional_contexts:
         t21-rviz2: "service:rviz2"
     develop:
       watch:
         - action: rebuild
-          path: ./additional/ros2
+          path: ./filters/ros2
           target: /ros2_ws/src
     network_mode: host
     << : *env
@@ -44,14 +44,14 @@ services:
   crop_filter:
     container_name: crop_filter
     build:
-      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/additional/
-      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/additional/docker/Dockerfile
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/docker/Dockerfile
       additional_contexts:
         t21-rviz2: "service:rviz2"
     develop:
       watch:
         - action: rebuild
-          path: ./additional/ros2
+          path: ./filters/ros2
           target: /ros2_ws/src
     network_mode: host
     << : *env
@@ -75,14 +75,14 @@ services:
   clahe_filter:
     container_name: clahe_filter
     build:
-      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/additional/
-      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/additional/docker/Dockerfile
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/docker/Dockerfile
       additional_contexts:
         t21-rviz2: "service:rviz2"
     develop:
       watch:
         - action: rebuild
-          path: ./additional/ros2/
+          path: ./filters/ros2/
           target: /ros2_ws/src
     network_mode: host
     << : *env
@@ -102,4 +102,4 @@ services:
     stdin_open: true
     tty: true
     shm_size: '2gb' 
-    command: sleep infinity #ros2 launch clahe_ros clahe.launch.py 
+    command: ros2 launch clahe_ros clahe.launch.py #sleep infinity #

@@ -36,7 +36,7 @@ class ImuRecorder(Node):
             Imu,
             '/imu/data',
             self.imu_callback,
-            10)
+            1000)
         
         self.start_time = None
         self.fieldnames = [
@@ -53,7 +53,7 @@ class ImuRecorder(Node):
         ]
 
         # Создаем директорию, если она не существует
-        dir_path = './imu_data_2'
+        dir_path = './imu_data'
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         

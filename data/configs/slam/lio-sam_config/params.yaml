@@ -3,11 +3,11 @@
 
     use_sim_time: false
     # TF
-    publishOdomToLidarTF: false 
-    publishOdomToBaseTF: true
+    publishOdomToLidarTF: false # Может нарушать дерево преобразовний между фреймами
+    publishOdomToBaseTF: true # Предпочтительный вариант, меньше ошибок
 
     # Topics
-    pointCloudTopic: "/velodyne_points"                   # Point cloud data
+    pointCloudTopic: "/velodyne_points" #/filtered"                   # Point cloud data
     imuTopic: "/imu/data"                        # IMU data
     odomTopic: "odometry/imu"                    # IMU pre-preintegration odometry, same frequency as IMU
     gpsTopic: "odometry/gpsz"                    # GPS odometry topic from navsat, see module_navsat.launch file
@@ -37,7 +37,7 @@
     lidarMinRange: 0.2                           # default: 1.0, minimum lidar range to be used
     lidarMaxRange: 25.0                        # default: 1000.0, maximum lidar range to be used
 
-    # IMU Settings
+    # IMU Settings - параметры, получаемые методом дисперсии Аллана 
     imuAccNoise: 0.0005981678269847178 
     imuGyrNoise: 0.00017734749509696484 
     imuAccBiasN: 2.2243616549719533e-05 
@@ -48,9 +48,9 @@
 
     # 0.165 0.0 0.139  0.0036 -2.29E-05 0.095
     #extrinsicTrans:  [ 0.154,  -0.001, 0.218]
-    extrinsicTrans:  [ -0.1686,  0.0, -0.269]
+    extrinsicTrans:  [ -0.1686,  0.0, -0.269] # Вектор смещения IMU относительно лидара
     #extrinsicTrans:  [ 0.0,  0.0, 0.0]
-    extrinsicRot:    [1.0,  0.0,  0.0,
+    extrinsicRot:    [1.0,  0.0,  0.0, # Экцентрик, считается отдельно пакетом https://github.com/unmannedlab/imu_lidar_calibration
                        0.0,  1.0,  0.0,
                        0.0,  0.0, 1.0 ]
     extrinsicRPY:    [1.0,  0.0,  0.0,

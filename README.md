@@ -24,7 +24,7 @@
 | Компонент | Описание |
 |-----------|----------|
 | Гусеничная платформа | Мобильная платформа с ros2_control |
-| IMU | XSENS MTi 710 |
+| IMU | XSENS MTi-G-710 |
 | LiDAR | Velodyne VLP-16 |
 | Камера | Intel RealSense D435i |
 
@@ -32,7 +32,7 @@
 
 ## Структура проекта
 
-Проект основан на контейнеризации с помощью `docker compose`. Каждый функциональный блок вынесен в отдельный сервис. Всего выделено 4 функциональных группы: `body`, `SLAM`, `navigation`, `sim` и `visualization`.
+Проект основан на контейнеризации с помощью `docker compose`. Каждый функциональный блок вынесен в отдельный сервис. Всего выделено 6 функциональных группы: `body`, `SLAM`, `navigation`, `sim`, `visualization` и `filters`. Разбиение на блоки сделано для выделения общих функциональных групп в отдельные директории.
 
 ### Общая структура репозитория
 
@@ -40,24 +40,30 @@
 black_plat/
 ├── bash_scripts/           # Bash-скрипты управления и установки пакетов
 ├── body/                   # Управление платформой и сенсорные данные
-├── SLAM/                   # SLAM-алгоритмы
-├── navigation/             # Автономная навигация
-├── sim/                    # Симуляция
 ├── data/                   # Конфиги всех пакетов, описание робота, rosbag'и, карты
 │   ├── configs/
-│   │   ├── body/           # Конфиги сенсоров (IMU, LiDAR, камера)
+│   │   ├── body/           # Конфиги сенсоров (IMU, LiDAR, камера) и контроллера
 |   |   ├── navigation/           
 │   │   └── slam/           
 │   ├── maps/
 │   ├── mesh/
-|   ├── tmux/               # Конфиг tmux → data/configs/tmux/tmux.conf
-│   └── rosbags/
-├── visualization/          # Инструменты визуализации
-├── dds/                    # Конфигурация DDS (middleware ROS2)
+│   ├── rosbags/
+│   ├── rviz2/
+│   ├── scripts/
+|   |   ├── flipper/
+|   |   ├── glim/
+|   |   └── imu/    
+│   └── tmux/               # Конфиг tmux → data/configs/tmux/tmux.conf
+├── dds/                    # Конфигурация DDS (middleware ROS2)s
+├── filters/                # Фильтры данных с сенсоров
 ├── materials/              # Вспомогательные материалы
+├── navigation/             # Автономная навигация
+├── sim/                    # Симуляция
+├── SLAM/                   # SLAM-алгоритмы
+├── visualization/          # Инструменты визуализации
 ├── docker-compose.yaml     # Корневой compose-файл
 ├── Makefile                # Основной make-файл для сборки и запуска
-└── README.md
+└── README.md               # <Вы находитесь здесь>
 ```
 
 ### Структура функционального блока
@@ -74,7 +80,7 @@ black_plat/
             └── Файлы_пакета
 ```
 
----
+## Функциональный блоки
 
 ### body — управление платформой
 
@@ -86,12 +92,13 @@ black_plat/
 - [ros2_control] — hardware-интерфейсы для управления платформой.
 - [t21_teleop] — пакет телеуправления реальной платформой.
 - [tracked_description](body/ros2/tracked_description/README.md) — описание робота (URDF/XACRO) и launch-файлы.
-- [power_monitor](https://github.com/dakolzin/USR-DR134-GUI.git) — мониторинг заряда аккумулятора. [Репозиторий автора](https://github.com/dakolzin/USR-DR134-GUI.git).
+- [power_monitor](body/ros2/power_monitor/README.md) — мониторинг заряда аккумулятора. [Репозиторий автора](https://github.com/dakolzin/USR-DR134-GUI.git).
 
 ---
 
 ### SLAM — алгоритмы построения карт
 
+- [GLIM](SLAM/GLIM/ros2/glim_ros2/README.md) — современный LiDAR-Inertial алгоритм.
 - [LeGO-LOAM](SLAM/LeGO-LOAM-ROS2/ros2/README.md) — SLAM на основе LiDAR.
 - [t21_slam_toolbox](SLAM/t21_slam_toolbox/ros2/t21_slam_toolbox/README.md) — интеграция slam_toolbox.
 - [LIO-SAM](SLAM/LIO_SAM/ros2/lio_sam/README.md) — LiDAR-Inertial Odometry SLAM.
@@ -120,7 +127,6 @@ black_plat/
 | Пакет | Версия | Установка |
 |-------|--------|-----------|
 | Docker Engine | ≥ 24.x | см. ниже |
-| Docker Compose V2 | встроен в Docker | — |
 | NVIDIA Container Toolkit | последняя | только при наличии GPU |
 | make | любая | `sudo apt install make` |
 | tmux | ≥ 3.2 | `sudo apt install tmux` |
@@ -355,4 +361,3 @@ make monitor-ls
 |----------|--------|
 | `t21_rtabmap` — ошибка сборки контейнера | 🔴 Не исправлено |
 | `velodyne_simulator` deb-пакет содержит ошибку | 🟡 Workaround: сборка из исходников |
-| Устаревшие описания пакетов | 🟡 Идёт исправление |

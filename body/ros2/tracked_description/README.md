@@ -9,6 +9,7 @@
 - [Цель](#цель)
 - [Описание каталогов](#описание-каталогов)
 - [Зависимости](#зависимости)
+- [Настройка](#настройка)
 - [Запуск модели в RViz2](#запуск-модели-в-rviz2)
 ---
 
@@ -20,13 +21,32 @@
 #  [Описание каталогов ](#оглавление)
 
 ```bash
-t21_ws/src/tracked_description
-├── CMakeLists.txt                # скрипт ament_cmake
-├── package.xml                   # зависимости
-├── launch/
-│   └── display.launch.py         # быстрый запуск визуализации
-└── src/
-    └── dummy.cpp                 # заглушка‑нода
+body
+├── docker
+│   └── Dockerfile
+├── ros2
+│   ...
+│    └── tracked_description/
+│        ├── CMakeLists.txt
+│        ├── config
+│        │   ├── controllers.yaml
+│        │   ├── ps4_teleop.yaml
+│        │   ├── t21.ros2_control.xacro
+│        │   └── t21.rviz
+│        ├── launch
+│        │   ├── bringup_t21.launch.py
+│        │   └── display.launch.py
+│        ├── package.xml
+│        ├── README.md # <Вы находитесь здесь>
+│        ├── src
+│        │   ├── cmd_vel_to_float.cpp
+│        │   └── dummy.cpp
+│        └── urdf
+│            ├── camera.xacro
+│            ├── imu.xacro
+│            ├── lidar.xacro
+│            ├── t21.urdf.xacro
+│            └── tracked_robot.urdf.xacro
 ```
 
 ---
@@ -53,6 +73,12 @@ sudo apt update && \
 ```
 
 ---
+
+# [Настройка](#оглавление)
+Конфигурационные файлы контроллера робота и управления джойстиком находятся в общей [директории](/data/configs/body/tracked_config/).
+
+---
+
 
 # [Запуск модели в RViz2](#оглавление)
 

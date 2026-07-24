@@ -5,9 +5,10 @@
 MKFILE_PATH   := $(abspath $(lastword $(MAKEFILE_LIST)))
 ROOT_DIR      := $(dir $(MKFILE_PATH))
 
-DISPLAY       ?= :0
-ROS_DOMAIN_ID ?= 0
-LOG_MODE 	  ?= true
+DISPLAY       			?= :0
+ROS_DOMAIN_ID 			?= 0
+LOG_MODE 	  		 	?= true
+GLIM_SERVICE_MODE 	  	?= GPU
 export DISPLAY ROS_DOMAIN_ID ROOT_DIR
 
 # ============================================================================ #
@@ -26,10 +27,11 @@ LEGO_LOAM_SERVICE     ?= lego-loam
 LIWO_SAM_SERVICE      ?= liwo-sam
 SLAM_TOOLBOX_SERVICE  ?= slam_toolbox
 CARTOGRAPHER_SERVICE  ?= cartographer
+GLIM_SERVICE := $(if $(filter GPU,$(GLIM_SERVICE_MODE)),glim-gpu,glim-cpu)
 
 # Группы сервисов
 PLATFORM_SERVICES := $(BODY_SERVICE) $(TELEOP_SERVICE)
-SLAM_SERVICE      := $(LIWO_SAM_SERVICE)
+SLAM_SERVICE      := $(GLIM_SERVICE)
 SIM_SERVICES      := $(SIM_SERVICE)
 
 # Полный стек (исправлено: было BODY_SERVICES — переменной не существовало)
@@ -59,7 +61,7 @@ prepare-x11:
 
 .PHONY: build build-platform build-slam build-nav2 build-sim build-rviz \
 		build-body build-teleop build-power-monitor build-lio-sam build-lego-loam \
-		build-liwo-sam build-slam-toolbox build-cartographer
+		build-liwo-sam build-slam-toolbox build-cartographer build-glim
 
 build:
 	@echo "==> Building: $(SERVICES)"
@@ -101,6 +103,9 @@ build-slam-toolbox:
 build-cartographer:
 	@$(MAKE) build SERVICES="$(CARTOGRAPHER_SERVICE)"
 
+build-glim:
+	@$(MAKE) build SERVICES="$(GLIM_SERVICE)"
+
 build-all:
 	@$(MAKE) build SERVICES="$(ALL_SERVICES)"
 
@@ -110,7 +115,7 @@ build-all:
 
 .PHONY: up up-platform up-slam up-nav2 up-sim up-rviz \
 		up-body up-teleop up-power-monitor up-lio-sam up-lego-loam \
-		up-liwo-sam up-slam-toolbox up-cartographer
+		up-liwo-sam up-slam-toolbox up-cartographer up-glim
 
 up: prepare-x11
 	@echo "==> Starting: $(SERVICES)"
@@ -159,6 +164,9 @@ up-slam-toolbox: prepare-x11
 up-cartographer: prepare-x11
 	@$(MAKE) up SERVICES="$(CARTOGRAPHER_SERVICE)"
 
+up-glim: prepare-x11
+	@$(MAKE) up SERVICES="$(GLIM_SERVICE)"
+
 up-all: prepare-x11
 	@$(MAKE) up SERVICES="$(ALL_SERVICES)"
 
@@ -168,7 +176,7 @@ up-all: prepare-x11
 
 .PHONY: down down-platform down-slam down-nav2 down-sim down-rviz \
 		down-body down-teleop down-power-monitor down-lio-sam down-lego-loam \
-		dpwn-liwo-sam down-slam-toolbox down-cartographer
+		dpwn-liwo-sam down-slam-toolbox down-cartographer down-glim
 down:
 	@echo "==> Stopping: $(SERVICES)"
 	@$(DC) stop $(SERVICES)
@@ -211,6 +219,9 @@ down-slam-toolbox:
 
 down-cartographer:
 	@$(MAKE) down SERVICES="$(CARTOGRAPHER_SERVICE)"
+
+down-glim:
+	@$(MAKE) down SERVICES="$(GLIM_SERVICE)"
 
 down-all:
 	@$(DC) down
