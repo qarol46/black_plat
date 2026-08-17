@@ -112,33 +112,7 @@ services:
       - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data/scripts/glim:/scripts
       - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data/configs/slam/glim_config/gpu:/glim/config/
     command: sleep infinity
-  liwo-sam:
-    container_name: liwo-sam
-    build:
-      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LIWO_SAM/
-      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LIWO_SAM/docker/Dockerfile
-      additional_contexts:
-        t21-rviz2: "service:rviz2"
-    # develop:
-    #   watch:
-    #     - action: rebuild
-    #       path: ./SLAM/LIO_SAM/ros2
-    #       target: /ros2_ws/src
-    #       ignore:
-    #         - config/
-    #     - action: sync+restart
-    #       path: SLAM/LIO_SAM/config
-    #       target: /ros2_ws/src/config
-    privileged: true
-    restart: always
-    stdin_open: true
-    tty: true
-    network_mode: host 
-    <<: [*env, *vol, *deploy]
-    #pre_stop:
-    #  - command: # TODO command to save map
-    command: ros2 launch liwo_sam run.launch.py
-
+  
   slam_toolbox:
     container_name: slam_toolbox
     build:
