@@ -59,6 +59,7 @@ def generate_launch_description():
             parameters=[parameter_file],
             output='screen'
         ),
+        # LIWO (Wheel Odometry) mode
         # Node(
         #     package='lio_sam',
         #     executable='lio_sam_wheelInertialPreintegration',

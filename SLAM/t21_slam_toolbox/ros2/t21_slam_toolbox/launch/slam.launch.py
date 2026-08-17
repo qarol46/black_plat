@@ -50,7 +50,7 @@ def generate_launch_description():
             'configs',
             'slam',
             'slam-toolbox_config',
-            'slam.yaml'
+            'mapper_params.yaml'
         ]),
         description='Full path to the ROS2 parameters file to use for the slam_toolbox node')
 
