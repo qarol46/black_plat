@@ -139,37 +139,6 @@ services:
     #  - command: # TODO command to save map
     command: ros2 launch liwo_sam run.launch.py
 
-  lego-loam:
-    container_name: lego-loam
-    build:
-      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LeGO-LOAM-ROS2/
-      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LeGO-LOAM-ROS2/docker/Dockerfile
-      additional_contexts:
-        t21-rviz2: "service:rviz2"
-    develop:
-      watch:
-        - action: rebuild
-          path: ./SLAM/LeGO-LOAM-ROS2/ros2
-          target: /ros2_ws/src
-          ignore:
-            - LeGO-LOAM/config/
-            - LICENSE
-            - README.md
-            - Shan_Englot_IROS_2018_Preprint.pdf
-        - action: sync+restart
-          path: ./SLAM/LeGO-LOAM-ROS2/ros2/LeGO-LOAM/config
-          target: /ros2_ws/src/config
-    privileged: true
-    restart: always
-    stdin_open: true
-    tty: true
-    network_mode: host
-    <<: [*env, *vol, *deploy]
-    pre_stop:
-    - command: >
-        bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash &&
-        ros2 service call /lego_loam/save_map cloud_msgs/srv/SaveMap '{resolution: 0.4, destination: /data/maps/new_map}'"
-    command: ros2 launch lego_loam_sr run.launch.py
   cartographer:
     container_name: cartographer
     build:
