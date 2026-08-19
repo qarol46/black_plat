@@ -4,7 +4,7 @@ include:
   - ${ROOT_DIR:-/home/tms/Projects/black_plat}/visualization/docker-compose.yaml
   #_____________________________________Body_____________________________________
   - ${ROOT_DIR:-/home/tms/Projects/black_plat}/body/docker-compose.yaml
-  # _____________________________________SLAM________________________________________
+  # ____________________________________SLAM________________________________________
   - ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/docker-compose.yaml
   #_____________________________________Navigation__________________________________
   - ${ROOT_DIR:-/home/tms/Projects/black_plat}/navigation/docker-compose.yaml

@@ -100,10 +100,8 @@ black_plat/
 ### SLAM — алгоритмы построения карт
 
 - [GLIM](SLAM/GLIM/ros2/glim_ros2/README.md) — современный LiDAR-Inertial алгоритм.
-- [LeGO-LOAM](SLAM/LeGO-LOAM-ROS2/ros2/README.md) — SLAM на основе LiDAR.
 - [t21_slam_toolbox](SLAM/t21_slam_toolbox/ros2/t21_slam_toolbox/README.md) — интеграция slam_toolbox.
 - [LIO-SAM](SLAM/LIO_SAM/ros2/lio_sam/README.md) — LiDAR-Inertial Odometry SLAM.
-- [t21_cartographer](SLAM/t21_cartographer/ros2/t21_cartographer/README.md) — Google Cartographer SLAM.
 
 ---
 

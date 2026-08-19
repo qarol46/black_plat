@@ -1,47 +1,78 @@
-robot_localization_debug.txt
-t21_debug_log.txt
+##############################################
+# ROS2 / Colcon build artifacts
+##############################################
 build/
 install/
 log/
+COLCON_IGNORE
+
+##############################################
+# Editor / IDE
+##############################################
 .vscode
-src/.vscode
-frames_*
-rosbag2_*
-rosbags/
-rosgraph.png
-rtabmap_nomap.png
-src/.vscode
-pkg.txt
-maps/
-maps*
-src/USR-DR134-GUI/
-morning_test_oka_setup/
-morning_test_oka_setup.zip
-results/
-bluespace_ai_xsens_ros_mti_driver.tar.xz
-src/direct_lidar_inertial_odometry.zip
-src/velodyne_simulator/
-src/t21_teleop/t21_teleop/__pycache_
-imu_data*/
-cartographer_maps/
-general_record/
-*.csv
-*.png
-src/imu_calib/
-src/imu_calib/imu_lidar_calibration.zip
-li_calib.zip
-*.pyc
-*.zip
-*.tar.xz    
-*.7z
-*.log
-*.bag
-plot_venv/
-__pycache__/
-imu_calib/
+
+##############################################
+# Debug / analysis logs
+##############################################
+analysis_plots/
+analyze_logs.py
 control_log_csv/
 output_csv/
-analyze_logs.py
+robot_localization_debug.txt
+t21_debug_log.txt
 test.py
-analysis_plots/
-COLCON_IGNORE
+*.csv
+*.log
+
+##############################################
+# Maps
+##############################################
+maps*/
+
+##############################################
+# Recorded data / bags
+##############################################
+cartographer_maps/
+frames_*
+general_record/
+imu_data*/
+rosbag2_*
+rosbags/
+*.bag
+
+##############################################
+# Images
+##############################################
+rosgraph.png
+rtabmap_nomap.png
+*.png
+
+##############################################
+# Archives
+# (covers direct_lidar_inertial_odometry.zip, li_calib.zip,
+#  bluespace_ai_xsens_ros_mti_driver.tar.xz, etc.)
+##############################################
+*.7z
+*.tar.xz
+*.zip
+
+##############################################
+# Python
+##############################################
+__pycache__/
+plot_venv/
+*.pyc
+
+##############################################
+# Project-specific packages / calibration dirs
+##############################################
+imu_calib/
+src/USR-DR134-GUI/
+src/velodyne_simulator/
+
+##############################################
+# Misc
+##############################################
+morning_test_oka_setup/
+pkg.txt
+results/

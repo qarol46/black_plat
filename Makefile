@@ -8,7 +8,7 @@ ROOT_DIR      := $(dir $(MKFILE_PATH))
 DISPLAY       			?= :0
 ROS_DOMAIN_ID 			?= 0
 LOG_MODE 	  		 	?= true
-GLIM_SERVICE_MODE 	  	?= GPU
+GLIM_SERVICE_MODE 	  	?= CPU
 export DISPLAY ROS_DOMAIN_ID ROOT_DIR
 
 # ============================================================================ #
@@ -31,11 +31,10 @@ GLIM_SERVICE := $(if $(filter GPU,$(GLIM_SERVICE_MODE)),glim-gpu,glim-cpu)
 
 # Группы сервисов
 PLATFORM_SERVICES := $(BODY_SERVICE) $(TELEOP_SERVICE)
-SLAM_SERVICE      := $(GLIM_SERVICE)
-SIM_SERVICES      := $(SIM_SERVICE)
+SLAM_SERVICE      := $(LIO_SAM_SERVICE)
+SIM_SERVICES      := $(GLIM_SERVICE)
 
-# Полный стек (исправлено: было BODY_SERVICES — переменной не существовало)
-ALL_SERVICES  := $(BODY_SERVICE) $(TELEOP_SERVICE) $(POWER_MONITOR_SERVICE) $(SLAM_SERVICE)
+ALL_SERVICES  := $(BODY_SERVICE) $(TELEOP_SERVICE) $(POWER_MONITOR_SERVICE) $(SLAM_SERVICE) $(RVIZ_SERVICE)
 
 # Сервисы для запуска (переопределяется при вызове make)
 SERVICES      ?= $(ALL_SERVICES)
