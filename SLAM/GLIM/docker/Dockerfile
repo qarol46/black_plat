@@ -34,13 +34,14 @@ RUN apt-get update \
     python3-colcon-common-extensions \
     python3-rosdep \
     ros-${ROS_DISTRO}-ros-base ros-$ROS_DISTRO-cv-bridge ros-$ROS_DISTRO-image-transport-plugins ros-$ROS_DISTRO-tf2-ros \
-    libfmt-dev libspdlog-dev libopencv-dev \
+    libiridescence-dev libfmt-dev libspdlog-dev libopencv-dev \
     libboost-all-dev libglfw3-dev libmetis-dev \
     software-properties-common \
     git cmake build-essential wget unzip libboost-all-dev \
     libmetis-dev libomp-dev \
     libpng-dev libjpeg-dev libeigen3-dev libglm-dev libglfw3-dev \
     libwebkit2gtk-4.0-37 libjavascriptcoregtk-4.0-18 libgtk-3-0 \
+    zenity \
 # install gtsam
   # && git clone https://github.com/borglab/gtsam \
   # &&  cd gtsam && git checkout 4.3a0 \
@@ -55,11 +56,11 @@ RUN apt-get update \
   # && sudo make install \
 # Install Iridescence for visualization
 # This is optional but highly recommended
-  && git clone https://github.com/koide3/iridescence --recursive \
-  && mkdir iridescence/build && cd iridescence/build \
-  && cmake .. -DCMAKE_BUILD_TYPE=Release \
-  && make -j$(nproc) \
-  && sudo make install \
+  # && git clone https://github.com/koide3/iridescence --recursive \
+  # && mkdir iridescence/build && cd iridescence/build \
+  # && cmake .. -DCMAKE_BUILD_TYPE=Release \
+  # && make -j$(nproc) \
+  # && sudo make install \
 
 # Install gtsam_points
   # && git clone https://github.com/koide3/gtsam_points \
