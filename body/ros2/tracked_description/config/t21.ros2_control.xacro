@@ -11,6 +11,7 @@
       <!-- аппаратный плагин -->
       <hardware>
         <plugin>t21_hardware/T21TrackedHardware</plugin>
+        <!-- при необходимости можно добавить <param …/> -->
       </hardware>
 
       <!-- виртуальный сустав линейной скорости -->

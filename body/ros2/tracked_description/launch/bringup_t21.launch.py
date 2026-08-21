@@ -69,7 +69,7 @@ def generate_launch_description() -> LaunchDescription:
         ])
     }
 
-    controller_parameters = PathJoinSubstitution([LaunchConfiguration('env_path'), 'configs', 'body', 'tracked_config', 'controllers.yaml'])
+    controller_parameters = PathJoinSubstitution([PKG, 'config', 'controllers.yaml'])
     cm_ns = '/controller_manager'
     rviz_config_file = PathJoinSubstitution([LaunchConfiguration('env_path'), 'rviz2', 'navigation.rviz'])
     nodes = [

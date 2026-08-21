@@ -132,34 +132,6 @@ black_plat/
 ### Установка Docker Desktop (Ubuntu)
 
 ```bash
-<<<<<<< HEAD
-t21_ws/src
-/tracked_description
-├── CMakeLists.txt                # скрипт ament_cmake
-├── package.xml                   # зависимости
-├── mesh/                         # STL‑модели
-│   ├── base.stl
-│   └── fliper.stl
-├── urdf/
-│   └── tracked_robot.urdf.xacro  # описание робота (xacro)
-├── launch/
-│   └── display.launch.py         # быстрый запуск визуализации
-├── config/
-│   └── rviz.rviz                 # конфигурационный RViz2
-└── src/
-    └── dummy.cpp                 # заглушка‑нода
-/LIO_SAM
-├── CMakeLists.txt                # скрипт ament_cmake
-├── package.xml                   # зависимости
-├── launch/
-│   ├── rviz.launch.py            # быстрый запуск визуализации
-│   └── run.launch.py             # запуск программного модуля локализации
-├── config/
-|   ├── params.yaml               # список параметров
-|   ├── robot.urdf.xacro          # urdf описание робота для запуска примера
-│   └── rviz2.rviz                # конфигурационный RViz2
-
-=======
 # Add Docker's official GPG key:
 sudo apt update 
 sudo apt install -y ca-certificates curl
@@ -237,7 +209,6 @@ git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
 ```bash
 tmux kill-server
 tmux
->>>>>>> work
 ```
 
 ---
@@ -348,11 +319,6 @@ docker compose down          # остановить и удалить конте
 ### Быстрые сценарии
 
 ```bash
-<<<<<<< HEAD
-ros2 launch tracked_description display.launch.py 
-```
-В RViz2 вы увидите:
-=======
 # Весь стек (ALL_SERVICES) горизонтально
 make monitor
 
@@ -379,7 +345,6 @@ make monitor-ls
 ```
 
 ### Параметры `make monitor`
->>>>>>> work
 
 | Переменная | Описание | Значение по умолчанию |
 |------------|----------|-----------------------|
@@ -406,36 +371,13 @@ make monitor-ls
 | `Alt + ?` | Поиск вверх в логах (copy-mode) |
 | `Shift + drag` | Выделить текст мышью в буфер **терминала** |
 
-<<<<<<< HEAD
-Для запуска визуализации и системы управления выполняем в терминале:
-```bash
-ros2 launch tracked_description bringup_t21.launch.py
-```
-Для запуска симуляция необходимо дописать use_sim_time:=True
-Для управления с джойстика запускаем в новом терминале:
-```bash
-ros2 launch t21_teleop joy_full_teleop.launch.py
-```
-=======
 > Для сохранения сессии перед перезагрузкой используй `Ctrl+B`, затем `Ctrl+S`.
 > После перезагрузки просто запусти `tmux` — сессия восстановится автоматически.
 
 > В режиме copy-mode: `v` — начать выделение, `y` — скопировать в буфер обмена (wl-copy / xclip).
->>>>>>> work
 
 > **При выделении мышью строк для копирования они сохраняются в буфер автоматически.**
 
-<<<<<<< HEAD
-Для работы с пакетом без робота, необходимо запустить эхо-сервер:
-```bash
-ros2 run tracked_description dummy
-```
-# [Модуль локализации lio_sam](#оглавление)
-Для запуска модуля локализации необходимо после запуска системы управления выполнить в терминале:
-```bash
-ros2 launch lio_sam run.launch.py
-```
-=======
 > [Подробности в видео](https://www.youtube.com/watch?v=GnP_SsMPNro&pp=ygUPYW1wZWVyc2FuZCB0bXV4)
 ---
 
@@ -444,4 +386,3 @@ ros2 launch lio_sam run.launch.py
 | Проблема | Статус |
 |----------|--------|
 | `velodyne_simulator` deb-пакет содержит ошибку | 🟡 Workaround: сборка из исходников |
->>>>>>> work

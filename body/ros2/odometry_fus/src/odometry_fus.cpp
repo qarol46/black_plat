@@ -13,13 +13,8 @@ public:
   OdomFusion() : Node("odometry_fusion"), current_direction_(1.0) {
     declare_parameter("odom_topic", "/diff_drive_controller/odom");
     declare_parameter("imu_topic", "/imu/data");
-<<<<<<< HEAD:src/odometry_fus/src/odometry_fus.cpp
-    declare_parameter("output_topic", "/odom");
-    declare_parameter("child_frame", "world");
-=======
     declare_parameter("output_topic", "/odom/diff_imu");
     declare_parameter("child_frame", "base_link");
->>>>>>> work:body/ros2/odometry_fus/src/odometry_fus.cpp
     declare_parameter("world_frame", "odom");
     declare_parameter("publish_tf", true);
     declare_parameter("min_speed", 0.001);

@@ -7,19 +7,13 @@ joint_state_broadcaster:
 diff_drive_controller:
   ros__parameters:
     odom_frame_id: odom
-<<<<<<< HEAD:src/tracked_description/config/controllers.yaml
-    base_frame_id: world
-    enable_odom_tf: true
-    publish_odom_tf: true
-=======
     base_frame_id: base_link
     enable_odom_tf: false
     publish_odom_tf: false
->>>>>>> work:body/ros2/tracked_description/config/controllers.yaml
     left_wheel_names:  ["wheel_left_joint"]
     right_wheel_names: ["wheel_right_joint"]
     wheel_separation:  0.374       # float
-    wheel_radius:      0.124       # float
+    wheel_radius:      0.072       # float
     cmd_vel_timeout:   0.25       # float
     publish_rate:      100.0       # was 50
     use_stamped_vel:   false

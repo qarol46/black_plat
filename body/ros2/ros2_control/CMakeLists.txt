@@ -22,15 +22,9 @@ find_package(rclcpp_lifecycle     REQUIRED)
 find_package(Eigen3               REQUIRED)
 find_package(Boost                REQUIRED COMPONENTS system)
 find_package(geometry_msgs        REQUIRED)
-<<<<<<< HEAD:src/ros2_control/ros2_control_t21_hardware/CMakeLists.txt
-find_package(graph_msgs           REQUIRED)
-find_package(moveit_core          REQUIRED)
-find_package(moveit_ros_planning  REQUIRED)
-=======
 #find_package(graph_msgs           REQUIRED)
 #find_package(moveit_core          REQUIRED)
 #find_package(moveit_ros_planning  REQUIRED)
->>>>>>> work:body/ros2/ros2_control/CMakeLists.txt
 find_package(rclcpp_components    REQUIRED)
 #find_package(rviz_visual_tools    REQUIRED)
 find_package(std_msgs             REQUIRED)
@@ -59,15 +53,9 @@ ament_target_dependencies(${PROJECT_NAME}
   Eigen3
   Boost
   geometry_msgs
-<<<<<<< HEAD:src/ros2_control/ros2_control_t21_hardware/CMakeLists.txt
-  graph_msgs
-  moveit_core
-  moveit_ros_planning
-=======
   #graph_msgs
   #moveit_core
   #moveit_ros_planning
->>>>>>> work:body/ros2/ros2_control/CMakeLists.txt
   rclcpp_components
   #rviz_visual_tools
   std_msgs
