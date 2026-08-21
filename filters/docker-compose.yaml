@@ -1,0 +1,105 @@
+name: lidar_filter
+# ____________________________EXTENSTIONS___________________________
+x-env: &env
+  environment:
+    - "DISPLAY=$DISPLAY"
+    - "NVIDIA_VISIBLE_DEVICES=all"
+    - "NVIDIA_DRIVER_CAPABILITIES=all"
+    - "FASTRTPS_DEFAULT_PROFILES_FILE=/dds/fastdds_no_shm.xml"
+    - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    - JOBLIB_TEMP_FOLDER=/tmp 
+# ____________________________SERVICES___________________________
+services:
+  lidar_filter:
+    container_name: lidar_filter
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/docker/Dockerfile
+      additional_contexts:
+        t21-rviz2: "service:rviz2"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./filters/ros2
+          target: /ros2_ws/src
+    network_mode: host
+    << : *env
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev:/dev:ro  
+      - /lib/modules:/lib/modules:ro 
+      - /sys/class/video4linux:/sys/class/video4linux:ro 
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+    devices:  
+      - /dev/bus/usb:/dev/bus/usb
+      - /dev/video0:/dev/video0
+      - /dev/input:/dev/input 
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    shm_size: '2gb' 
+    command: ros2 launch pcl_filter dsor.launch.py
+  crop_filter:
+    container_name: crop_filter
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/docker/Dockerfile
+      additional_contexts:
+        t21-rviz2: "service:rviz2"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./filters/ros2
+          target: /ros2_ws/src
+    network_mode: host
+    << : *env
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev:/dev:ro  
+      - /lib/modules:/lib/modules:ro 
+      - /sys/class/video4linux:/sys/class/video4linux:ro 
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+    devices:  
+      - /dev/bus/usb:/dev/bus/usb
+      - /dev/video0:/dev/video0
+      - /dev/input:/dev/input 
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    shm_size: '2gb' 
+    command: ros2 run your_pkg angular_crop --ros-args -p angle_min_deg:=-90.0 -p angle_max_deg:=90.0 -p input_topic:=/velodyne_points
+  clahe_filter:
+    container_name: clahe_filter
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/docker/Dockerfile
+      additional_contexts:
+        t21-rviz2: "service:rviz2"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./filters/ros2/
+          target: /ros2_ws/src
+    network_mode: host
+    << : *env
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev:/dev:ro  
+      - /lib/modules:/lib/modules:ro 
+      - /sys/class/video4linux:/sys/class/video4linux:ro 
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+    devices:  
+      - /dev/bus/usb:/dev/bus/usb
+      - /dev/video0:/dev/video0
+      - /dev/input:/dev/input 
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    shm_size: '2gb' 
+    command: ros2 launch clahe_ros clahe.launch.py #sleep infinity #

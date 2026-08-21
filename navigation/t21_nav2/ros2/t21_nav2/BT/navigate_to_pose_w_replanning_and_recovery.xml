@@ -1,0 +1,42 @@
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+      <PipelineSequence name="NavigateWithReplanning">
+        <!-- Ожидаем, пока глобальная локализация не станет активной -->
+        <RateController hz="1.0">
+          <Sequence>
+            <IsStuck />
+            <ClearEntireCostmap service_name="global_costmap/clear_entirely_global_costmap"/>
+          </Sequence>
+        </RateController>
+        <!-- ОСНОВНОЙ ЦИКЛ: Перепланировка и слежение за путем -->
+        <RoundRobin name="MainSelector">
+          <Sequence name="ComputeAndFollowPath">
+            <!-- 1. Рассчитать глобальный путь к цели -->
+            <ComputePathToPose path="{path}" planner_id="GridBased"/>
+            <!-- 2. Выполнить локальное слежение за этим путем -->
+            <FollowPath path="{path}" controller_id="FollowPath"/>
+          </Sequence>
+          <!-- Альтернативное поведение (например, ожидание) -->
+          <Wait wait_duration="5"/>
+        </RoundRobin>
+      </PipelineSequence>
+
+      <!-- ПОДДЕРЕВО ВОССТАНОВЛЕНИЯ (запускается, если основной пайплайн провалился) -->
+      <ReactiveSequence name="RecoveryActions">
+        <!-- 1. Сначала пытаемся очистить карты (локальную, потом глобальную) -->
+        <Fallback name="ClearingRecoveryFallback">
+          <ClearEntireCostmap service_name="local_costmap/clear_entirely_local_costmap"/>
+          <ClearEntireCostmap service_name="global_costmap/clear_entirely_global_costmap"/>
+        </Fallback>
+        <!-- 2. Если очистка не помогла, выполняем серию простых действий -->
+        <RecoveryNode number_of_retries="1" name="SpinRecovery">
+          <Spin spin_dist="1.57"/> <!-- Поворот на ~90 градусов -->
+        </RecoveryNode>
+        <RecoveryNode number_of_retries="1" name="BackupRecovery">
+          <BackUp backup_dist="0.15" backup_speed="0.025"/> <!-- Отъезд назад -->
+        </RecoveryNode>
+      </ReactiveSequence>
+    </RecoveryNode>
+  </BehaviorTree>
+</root>

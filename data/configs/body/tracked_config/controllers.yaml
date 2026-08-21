@@ -1,0 +1,25 @@
+# controllers.yaml
+
+joint_state_broadcaster:
+  ros__parameters:
+    publish_rate: 50.0
+
+diff_drive_controller:
+  ros__parameters:
+    odom_frame_id: odom
+    base_frame_id: base_link
+    enable_odom_tf: false
+    publish_odom_tf: false
+    left_wheel_names:  ["wheel_left_joint"]
+    right_wheel_names: ["wheel_right_joint"]
+    wheel_separation:  0.374       # float
+    wheel_radius:      0.072       # float
+    cmd_vel_timeout:   0.25       # float
+    publish_rate:      100.0       # was 50
+    use_stamped_vel:   false
+
+geom_position_controller:
+  ros__parameters:
+    joints:          [geom_joint]
+    interface_name:  position
+    publish_rate:    10.0        # добавьте, если не было

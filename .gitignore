@@ -1,0 +1,78 @@
+##############################################
+# ROS2 / Colcon build artifacts
+##############################################
+build/
+install/
+log/
+COLCON_IGNORE
+
+##############################################
+# Editor / IDE
+##############################################
+.vscode
+
+##############################################
+# Debug / analysis logs
+##############################################
+analysis_plots/
+analyze_logs.py
+control_log_csv/
+output_csv/
+robot_localization_debug.txt
+t21_debug_log.txt
+test.py
+*.csv
+*.log
+
+##############################################
+# Maps
+##############################################
+maps*/
+
+##############################################
+# Recorded data / bags
+##############################################
+cartographer_maps/
+frames_*
+general_record/
+imu_data*/
+rosbag2_*
+rosbags/
+*.bag
+
+##############################################
+# Images
+##############################################
+rosgraph.png
+rtabmap_nomap.png
+*.png
+
+##############################################
+# Archives
+# (covers direct_lidar_inertial_odometry.zip, li_calib.zip,
+#  bluespace_ai_xsens_ros_mti_driver.tar.xz, etc.)
+##############################################
+*.7z
+*.tar.xz
+*.zip
+
+##############################################
+# Python
+##############################################
+__pycache__/
+plot_venv/
+*.pyc
+
+##############################################
+# Project-specific packages / calibration dirs
+##############################################
+imu_calib/
+src/USR-DR134-GUI/
+src/velodyne_simulator/
+
+##############################################
+# Misc
+##############################################
+morning_test_oka_setup/
+pkg.txt
+results/

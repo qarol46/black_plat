@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Макрос для инерции (добавьте в начало файла или подключите общий файл с макросами) -->
+  <xacro:macro name="box_inertia" params="b_mass b_length b_width b_height">
+    <inertial>
+      <mass value="${b_mass}"/>
+      <inertia ixx="${(b_mass/12.0) * (b_width*b_width + b_height*b_height)}"
+               ixy="0" ixz="0"
+               iyy="${(b_mass/12.0) * (b_length*b_length + b_height*b_height)}"
+               iyz="0"
+               izz="${(b_mass/12.0) * (b_length*b_length + b_width*b_width)}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- Макрос геометрии IMU -->
+  <xacro:macro name="xsens_link_geometry">
+    <geometry>
+      <box size="0.001 0.001 0.001"/>
+    </geometry>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:macro>
+
+  <!-- Ссылка IMU -->
+  <link name="xsens_link">
+    <visual>
+      <xacro:xsens_link_geometry/>
+      <material name="grey">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+    <collision>
+      <xacro:xsens_link_geometry/>
+    </collision>
+    <xacro:box_inertia
+      b_mass="0.1"
+      b_length="0.1"
+      b_width="0.1"
+      b_height="0.1"/>
+  </link>
+
+  <!-- Соединение с корпусом -->
+  <joint name="xsens_joint" type="fixed">
+    <parent link="big_box_link"/>
+    <child link="xsens_link"/>
+    <origin xyz="0 0.08 0.01" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Xsense gazebo model with realistic noise and drift -->
+  <gazebo reference="xsens_link">
+    <gravity>true</gravity>
+    <sensor name="imu_sensor" type="imu">
+      <pose relative_to='xsens_link'>0 0 0 0 0 0</pose>
+      <always_on>true</always_on>
+      <update_rate>10</update_rate>
+
+      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+        <ros>
+          <remapping>~/out:=/imu/data_raw</remapping>
+        </ros>
+        <!--topicName>imu/data_raw</topicName>
+        <bodyName>xsens_link</bodyName>
+        <updateRateHZ>100.0</updateRateHZ>
+        <gaussianNoise>0.001</gaussianNoise>
+        <xyzOffset>0 0 0</xyzOffset>
+        <rpyOffset>0 0 0</rpyOffset>
+        <frameName>xsens_link</frameName-->
+      </plugin>
+    </sensor>
+  </gazebo>
+</robot>

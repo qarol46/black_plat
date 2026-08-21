@@ -1,0 +1,90 @@
+name: body
+# ____________________________EXTENSTIONS___________________________
+x-env: &env
+  environment:
+    - DISPLAY=${DISPLAY}
+    - QT_X11_NO_MITSHM=1
+    - FASTRTPS_DEFAULT_PROFILES_FILE=/dds/fastdds_no_shm.xml
+    - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+# ____________________________SERVICES___________________________
+services:
+  body:
+    container_name: body
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/body/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/body/docker/Dockerfile
+      additional_contexts:
+        t21-rviz2: "service:rviz2"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./body/ros2
+          target: /ros2_ws/src
+          ignore:
+            - t21_teleop/
+            - power_monitor/
+    network_mode: host
+    << : *env
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev:/dev:ro  
+      - /lib/modules:/lib/modules:ro 
+      - /sys/class/video4linux:/sys/class/video4linux:ro 
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+    devices:  
+      - /dev/bus/usb:/dev/bus/usb
+      - /dev/video0:/dev/video0
+      - /dev/input:/dev/input 
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    command: ros2 launch tracked_description bringup_t21.launch.py
+  teleop:
+    container_name: teleop
+    depends_on:
+      rviz2:
+        condition: service_started
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/body/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/body/docker/Dockerfile
+      additional_contexts:
+        t21-rviz2: "service:rviz2"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./body/ros2/t21_teleop
+          target: /ros2_ws/src/t21_teleop
+    network_mode: host
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    volumes:
+      - /dev:/dev:ro  
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+    devices:  
+      - /dev/input:/dev/input 
+    stdin_open: true
+    restart: always
+    tty: true
+    command: ros2 launch t21_teleop joy_platform_teleop.launch.py
+  power_monitor:
+    container_name: power_monitor
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/body/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/body/docker/Dockerfile
+      additional_contexts:
+        t21-rviz2: "service:rviz2"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./body/ros2/power_monitor
+          target: /ros2_ws/src/power_monitor
+    network_mode: host
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    stdin_open: true
+    restart: always
+    tty: true
+    command: ros2 launch power_monitor battery_monitor.launch.py
+  

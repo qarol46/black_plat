@@ -1,0 +1,142 @@
+# ____________________________EXTENSTIONS___________________________
+x-env_slam: &env
+  environment:
+    - DISPLAY=$DISPLAY
+    - NVIDIA_VISIBLE_DEVICES=all
+    - NVIDIA_DRIVER_CAPABILITIES=all
+    - FASTRTPS_DEFAULT_PROFILES_FILE=/dds/fastdds_no_shm.xml
+    - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+
+x-vol: &vol
+  volumes:
+    - /tmp/.X11-unix:/tmp/.X11-unix
+    - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+    - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+    - /etc/localtime:/etc/localtime:ro
+    - /etc/timezone:/etc/timezone:ro
+    - /dev/*:/dev/*
+
+x-deploy: &deploy
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+# ____________________________SERVICES___________________________
+services:
+  lio-sam:
+    container_name: lio-sam
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LIO_SAM/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/LIO_SAM/docker/Dockerfile
+      additional_contexts:
+        t21-rviz2: "service:rviz2"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./SLAM/LIO_SAM/ros2
+          target: /ros2_ws/src
+          ignore:
+            - config/
+        - action: sync+restart
+          path: SLAM/LIO_SAM/config
+          target: /ros2_ws/src/config
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    network_mode: host 
+    <<: [*env, *vol]
+    stop_grace_period: 15s
+    stop_signal: SIGINT
+    pre_stop:
+      - command: >
+          bash -c "source /opt/ros/humble/setup.bash &&
+          source /ros2_ws/install/setup.bash &&
+          timeout 15s ros2 service call /lio_sam/save_map lio_sam/srv/SaveMap '{resolution: 0.2, destination: /data/maps/new_map}' || true"
+    command: ros2 launch lio_sam run.launch.py
+  glim-cpu:
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/GLIM/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/GLIM/docker/Dockerfile
+      args:
+        BUILD_WITH_CUDA: "OFF"
+    image: glim:cpu
+    container_name: glim-cpu
+    network_mode: host
+    ipc: host
+    pid: host
+    stdin_open: true
+    tty: true
+    privileged: false
+    devices:
+      - /dev/dri:/dev/dri
+    <<: [*env]
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /dev/*:/dev/*
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data/scripts/glim:/scripts
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data/configs/slam/glim_config/cpu:/glim/config/
+    command: sleep infinity
+
+  glim-gpu:
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/GLIM/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/GLIM/docker/Dockerfile
+      args:
+        BUILD_WITH_CUDA: "ON"
+    image: glim:gpu
+    container_name: glim-gpu
+    network_mode: host
+    ipc: host
+    pid: host
+    stdin_open: true
+    tty: true
+    privileged: false
+    devices:
+      - /dev/dri:/dev/dri
+    <<: [*env, *deploy]
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /dev/*:/dev/*
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data/scripts/glim:/scripts
+      - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data/configs/slam/glim_config/gpu:/glim/config/
+    command: sleep infinity
+  
+  slam_toolbox:
+    container_name: slam_toolbox
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/t21_slam_toolbox/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/t21_slam_toolbox/docker/Dockerfile
+      additional_contexts:
+        t21-rviz2: "service:rviz2"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./SLAM/t21_slam_toolbox/ros2
+          target: /ros2_ws/src
+          ignore:
+            - config/
+            - README.md
+        - action: sync+restart
+          path: ./SLAM/t21_slam_toolbox/ros2/config
+          target: /ros2_ws/src/config
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    network_mode: host
+    <<: [*env, *vol, *deploy]
+    pre_stop:
+      - command: # TODO command to save map
+    command: ros2 launch t21_slam_toolbox slam.launch.py

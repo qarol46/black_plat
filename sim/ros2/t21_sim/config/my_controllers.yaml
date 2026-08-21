@@ -1,0 +1,35 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 50  # Обязательно!
+    diff_drive_controller:
+      type: diff_drive_controller/DiffDriveController
+    joint_broad:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    geom_position_controller:
+      type: position_controllers/JointGroupPositionController
+
+joint_broad:
+  ros__parameters:
+    publish_rate: 50.0
+    
+diff_drive_controller:
+  ros__parameters:
+    odom_frame_id: odom
+    base_frame_id: base_link
+    enable_odom_tf: false
+    publish_odom_tf: false
+    left_wheel_names:  ["wheel_left_joint"]
+    right_wheel_names: ["wheel_right_joint"]
+    wheel_separation:  0.374
+    wheel_radius:      0.065
+    cmd_vel_timeout:   0.25
+    publish_rate:      10.0
+    use_stamped_vel:   false
+
+geom_position_controller:
+  ros__parameters:
+    joints: [fliper_joint]
+    interface_name: position
+    state_publish_rate: 50.0
+    command_interfaces: [position]
+    allow_partial_joints_goal: true

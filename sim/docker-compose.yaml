@@ -1,0 +1,45 @@
+# ____________________________EXTENSTIONS___________________________
+x-env_slam: &env
+  environment:
+    - "DISPLAY=$DISPLAY"
+    - "NVIDIA_VISIBLE_DEVICES=all"
+    - "NVIDIA_DRIVER_CAPABILITIES=all"
+    - "FASTRTPS_DEFAULT_PROFILES_FILE=/dds/fastdds_no_shm.xml"
+    - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+    - QT_X11_NO_MITSHM=1
+
+x-vol: &vol
+  volumes:
+    - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    - ${ROOT_DIR:-/home/tms/Projects/black_plat}/data:/data
+    - ${ROOT_DIR:-/home/tms/Projects/black_plat}/dds:/dds
+    - "/dev/*:/dev/*"
+
+x-deploy: &deploy
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+# ____________________________SERVICES___________________________
+services:
+  sim:
+    build:
+      context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/sim/
+      dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/sim/docker/Dockerfile
+      additional_contexts:
+        t21-body: "service:body"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./sim/ros2
+          target: /ros2_ws/src
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    network_mode: host
+    <<: [*env, *vol, *deploy]
+    command: ros2 launch t21_sim launch_sim.launch.py

@@ -1,0 +1,18 @@
+name: t21 #COMPOSE_PROJECT_NAME
+include:
+  #_____________________________________RVIZ2__________________________________
+  - ${ROOT_DIR:-/home/tms/Projects/black_plat}/visualization/docker-compose.yaml
+  #_____________________________________Body_____________________________________
+  - ${ROOT_DIR:-/home/tms/Projects/black_plat}/body/docker-compose.yaml
+  # ____________________________________SLAM________________________________________
+  - ${ROOT_DIR:-/home/tms/Projects/black_plat}/SLAM/docker-compose.yaml
+  #_____________________________________Navigation__________________________________
+  - ${ROOT_DIR:-/home/tms/Projects/black_plat}/navigation/docker-compose.yaml
+  #_____________________________________Sim_______________________________________
+  - ${ROOT_DIR:-/home/tms/Projects/black_plat}/sim/docker-compose.yaml
+  #_____________________________________Filters________________________________
+  - ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/docker-compose.yaml
+
+# Chose servises to run by using profiles instaed of makefile
+#COMPOSE_PROFILES=frontend,debug
+# COMPOSE_REMOVE_ORPHANS=true

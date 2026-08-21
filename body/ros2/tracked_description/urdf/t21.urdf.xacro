@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot name="t21" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- Объявляем аргументы -->
+  <xacro:arg name="prefix" default=""/>
+  <!-- Геометрия -->
+  <xacro:include filename="$(find tracked_description)/urdf/tracked_robot.urdf.xacro"/>
+  <!-- Блок ros2_control -->
+  <xacro:include filename="$(find tracked_description)/config/t21.ros2_control.xacro"/>
+  <!-- Блок описания LiDAR -->
+  <xacro:include filename="$(find tracked_description)/urdf/lidar.xacro"/>
+  <!-- Блок описания камеры -->
+  <xacro:include filename="$(find tracked_description)/urdf/camera.xacro"/>
+  <!-- Блок описания IMU -->
+  <xacro:include filename="$(find tracked_description)/urdf/imu.xacro"/>
+</robot>
