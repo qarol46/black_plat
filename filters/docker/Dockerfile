@@ -32,11 +32,12 @@ COPY ./ros2 /ros2_ws/src
 COPY ./docker/ros_entrypoint.sh /ros_entrypoint.sh
 RUN chmod +x /ros_entrypoint.sh
 
-RUN /bin/bash -c '\
+ARG FILTER_PKG
+RUN /bin/bash -c "\
     . /opt/ros/$ROS_DISTRO/setup.bash && \
     cd /ros2_ws && \
-    colcon build --symlink-install \
-      --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo'
+    colcon build --symlink-install --packages-select ${ROS2_PKG} \
+      --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo"
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]

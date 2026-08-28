@@ -45,7 +45,6 @@ ament_target_dependencies(motion_emulator
   nav_msgs
   tf2
   tf2_ros
-  tf2_geometry_msgs
 )
 
 install(TARGETS 

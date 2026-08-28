@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
     double omega_r = ((lin_si + 0.5 * ang_si * L) / R);
 
     /* 3. рад/с → об/мин */
-    double rad2rpm = 60.0 / (2.0 * M_PI);
+    double rad2rpm = 60.0 / (2.0 * M_PI); //нужно ли тут выставлять ntohs?
     float rpm_l = static_cast<float>(omega_l * rad2rpm);
     float rpm_r = static_cast<float>(omega_r * rad2rpm);
 

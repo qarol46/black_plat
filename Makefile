@@ -19,22 +19,29 @@ export DISPLAY ROS_DOMAIN_ID ROOT_DIR
 SIM_SERVICE           ?= sim
 RVIZ_SERVICE          ?= rviz2
 NAV2_SERVICE          ?= nav2
+# CORE ROBOT SERVICES
 BODY_SERVICE          ?= body
 TELEOP_SERVICE        ?= teleop
 POWER_MONITOR_SERVICE ?= power_monitor
+# SLAM SERVICES
 LIO_SAM_SERVICE       ?= lio-sam
 LEGO_LOAM_SERVICE     ?= lego-loam
 LIWO_SAM_SERVICE      ?= liwo-sam
 SLAM_TOOLBOX_SERVICE  ?= slam_toolbox
 CARTOGRAPHER_SERVICE  ?= cartographer
 GLIM_SERVICE := $(if $(filter GPU,$(GLIM_SERVICE_MODE)),glim-gpu,glim-cpu)
+# FILTER SERVICES
+LIDAR_FILTER_SERVICE  ?= lidar_filter
+CROP_FILTER_SERVICE   ?= crop_filter
+CLAHE_FILTER_SERVICE  ?= clahe_filter
 
 # Группы сервисов
 PLATFORM_SERVICES := $(BODY_SERVICE) $(TELEOP_SERVICE)
 SLAM_SERVICE      := $(LIO_SAM_SERVICE)
 SIM_SERVICES      := $(GLIM_SERVICE)
+FILTER_SERVICES   := $(LIDAR_FILTER_SERVICE) $(CROP_FILTER_SERVICE) $(CLAHE_FILTER_SERVICE)
 
-ALL_SERVICES  := $(BODY_SERVICE) $(TELEOP_SERVICE) $(POWER_MONITOR_SERVICE) $(SLAM_SERVICE) $(RVIZ_SERVICE)
+ALL_SERVICES  := $(BODY_SERVICE) $(TELEOP_SERVICE) $(POWER_MONITOR_SERVICE) $(SLAM_SERVICE) $(RVIZ_SERVICE) $(FILTER_SERVICES)
 
 # Сервисы для запуска (переопределяется при вызове make)
 SERVICES      ?= $(ALL_SERVICES)
@@ -58,19 +65,15 @@ prepare-x11:
 # ___________________________ BUILD TARGETS __________________________________ #
 # ============================================================================ #
 
-.PHONY: build build-platform build-slam build-nav2 build-sim build-rviz \
-		build-body build-teleop build-power-monitor build-lio-sam build-lego-loam \
-		build-liwo-sam build-slam-toolbox build-cartographer build-glim
+.PHONY: build build-all \
+		build-nav2 build-sim build-rviz \
+		build-platform build-body build-teleop build-power-monitor \
+		build-slam build-lio-sam build-lego-loam build-liwo-sam build-slam-toolbox build-cartographer build-glim \
+		build-filters build-lidar-filter build-crop-filter build-clahe-filter
 
 build:
 	@echo "==> Building: $(SERVICES)"
 	@$(DC) build $(SERVICES)
-
-build-platform:
-	@$(MAKE) build SERVICES="$(PLATFORM_SERVICES)"
-
-build-slam:
-	@$(MAKE) build SERVICES="$(SLAM_SERVICE)"
 
 build-nav2:
 	@$(MAKE) build SERVICES="$(NAV2_SERVICE)"
@@ -81,11 +84,20 @@ build-sim:
 build-rviz:
 	@$(MAKE) build SERVICES="$(RVIZ_SERVICE)"
 
+build-platform:
+	@$(MAKE) build SERVICES="$(PLATFORM_SERVICES)"
+
 build-body:
 	@$(MAKE) build SERVICES="$(BODY_SERVICE)"
 
+build-teleop:
+	@$(MAKE) build SERVICES="$(TELEOP_SERVICE)"
+
 build-power-monitor:
 	@$(MAKE) build SERVICES="$(POWER_MONITOR_SERVICE)"
+
+build-slam:
+	@$(MAKE) build SERVICES="$(SLAM_SERVICE)"
 
 build-lio-sam:
 	@$(MAKE) build SERVICES="$(LIO_SAM_SERVICE)"
@@ -105,6 +117,18 @@ build-cartographer:
 build-glim:
 	@$(MAKE) build SERVICES="$(GLIM_SERVICE)"
 
+build-filters:
+	@$(MAKE) build SERVICES="$(FILTER_SERVICES)"
+
+build-lidar-filter:
+	@$(MAKE) build SERVICES="$(LIDAR_FILTER_SERVICE)"
+
+build-crop-filter:
+	@$(MAKE) build SERVICES="$(CROP_FILTER_SERVICE)"
+
+build-clahe-filter:
+	@$(MAKE) build SERVICES="$(CLAHE_FILTER_SERVICE)"
+
 build-all:
 	@$(MAKE) build SERVICES="$(ALL_SERVICES)"
 
@@ -112,9 +136,11 @@ build-all:
 # ______________________________ UP TARGETS __________________________________ #
 # ============================================================================ #
 
-.PHONY: up up-platform up-slam up-nav2 up-sim up-rviz \
-		up-body up-teleop up-power-monitor up-lio-sam up-lego-loam \
-		up-liwo-sam up-slam-toolbox up-cartographer up-glim
+.PHONY: up up-all \
+		up-nav2 up-sim up-rviz \
+		up-platform up-body up-teleop up-power-monitor \
+		up-slam up-lio-sam up-lego-loam up-liwo-sam up-slam-toolbox up-cartographer up-glim \
+		up-filters up-lidar-filter up-crop-filter up-clahe-filter
 
 up: prepare-x11
 	@echo "==> Starting: $(SERVICES)"
@@ -124,12 +150,6 @@ up: prepare-x11
 		$(DC) up --no-build -d $(SERVICES); \
 	fi
 				
-up-platform: prepare-x11
-	@$(MAKE) up SERVICES="$(PLATFORM_SERVICES)"
-
-up-slam: prepare-x11
-	@$(MAKE) up SERVICES="$(SLAM_SERVICE)"
-
 up-nav2: prepare-x11
 	@$(MAKE) up SERVICES="$(NAV2_SERVICE)"
 
@@ -139,6 +159,9 @@ up-sim: prepare-x11
 up-rviz: prepare-x11
 	@$(MAKE) up SERVICES="$(RVIZ_SERVICE)"
 
+up-platform: prepare-x11
+	@$(MAKE) up SERVICES="$(PLATFORM_SERVICES)"
+
 up-body: prepare-x11
 	@$(MAKE) up SERVICES="$(BODY_SERVICE)"
 
@@ -147,6 +170,9 @@ up-teleop: prepare-x11
 
 up-power-monitor: prepare-x11
 	@$(MAKE) up SERVICES="$(POWER_MONITOR_SERVICE)"
+
+up-slam: prepare-x11
+	@$(MAKE) up SERVICES="$(SLAM_SERVICE)"
 
 up-lio-sam: prepare-x11
 	@$(MAKE) up SERVICES="$(LIO_SAM_SERVICE)"
@@ -166,6 +192,18 @@ up-cartographer: prepare-x11
 up-glim: prepare-x11
 	@$(MAKE) up SERVICES="$(GLIM_SERVICE)"
 
+up-filters: prepare-x11
+	@$(MAKE) up SERVICES="$(FILTER_SERVICES)"
+
+up-lidar-filter: prepare-x11
+	@$(MAKE) up SERVICES="$(LIDAR_FILTER_SERVICE)"
+
+up-crop-filter: prepare-x11
+	@$(MAKE) up SERVICES="$(CROP_FILTER_SERVICE)"
+
+up-clahe-filter: prepare-x11
+	@$(MAKE) up SERVICES="$(CLAHE_FILTER_SERVICE)"
+
 up-all: prepare-x11
 	@$(MAKE) up SERVICES="$(ALL_SERVICES)"
 
@@ -173,18 +211,15 @@ up-all: prepare-x11
 # ______________________________ DOWN TARGETS ________________________________ #
 # ============================================================================ #
 
-.PHONY: down down-platform down-slam down-nav2 down-sim down-rviz \
-		down-body down-teleop down-power-monitor down-lio-sam down-lego-loam \
-		dpwn-liwo-sam down-slam-toolbox down-cartographer down-glim
+.PHONY: down down-all \
+		down-nav2 down-sim down-rviz \
+		down-platform down-body down-teleop down-power-monitor \
+		down-slam down-lio-sam down-lego-loam down-liwo-sam down-slam-toolbox down-cartographer down-glim \
+		down-filters down-lidar-filter down-crop-filter down-clahe-filter
+
 down:
 	@echo "==> Stopping: $(SERVICES)"
 	@$(DC) stop $(SERVICES)
-
-down-platform:
-	@$(MAKE) down SERVICES="$(PLATFORM_SERVICES)"
-
-down-slam:
-	@$(MAKE) down SERVICES="$(SLAM_SERVICE)"
 
 down-nav2:
 	@$(MAKE) down SERVICES="$(NAV2_SERVICE)"
@@ -195,6 +230,9 @@ down-sim:
 down-rviz:
 	@$(MAKE) down SERVICES="$(RVIZ_SERVICE)"
 
+down-platform:
+	@$(MAKE) down SERVICES="$(PLATFORM_SERVICES)"
+
 down-body:
 	@$(MAKE) down SERVICES="$(BODY_SERVICE)"
 
@@ -203,6 +241,9 @@ down-teleop:
 
 down-power-monitor:
 	@$(MAKE) down SERVICES="$(POWER_MONITOR_SERVICE)"
+
+down-slam:
+	@$(MAKE) down SERVICES="$(SLAM_SERVICE)"
 
 down-lio-sam:
 	@$(MAKE) down SERVICES="$(LIO_SAM_SERVICE)"
@@ -221,6 +262,18 @@ down-cartographer:
 
 down-glim:
 	@$(MAKE) down SERVICES="$(GLIM_SERVICE)"
+
+down-filters:
+	@$(MAKE) down SERVICES="$(FILTER_SERVICES)"
+
+down-lidar-filter:
+	@$(MAKE) down SERVICES="$(LIDAR_FILTER_SERVICE)"
+
+down-crop-filter:
+	@$(MAKE) down SERVICES="$(CROP_FILTER_SERVICE)"
+
+down-clahe-filter:
+	@$(MAKE) down SERVICES="$(CLAHE_FILTER_SERVICE)"
 
 down-all:
 	@$(DC) down
@@ -270,8 +323,12 @@ LAYOUT  ?= h
 # Внутреннее имя tmux-layout
 tmux_layout = $(if $(filter h,$(LAYOUT)),even-horizontal,$(if $(filter v,$(LAYOUT)),even-vertical,tiled))
 
-.PHONY: monitor monitor-platform monitor-slam monitor-nav2 monitor-robot monitor-sim \
-		monitor-down monitor-kill monitor-kill-all monitor-ls monitor-attach
+.PHONY: monitor monitor-attach \
+		monitor-nav2 monitor-sim \
+		monitor-platform monitor-robot \
+		monitor-slam \
+		monitor-filters \
+		monitor-down monitor-kill monitor-kill-all monitor-ls
 
 # Основная цель — запускает tmux с панелями для каждого сервиса из SERVICES
 monitor:
@@ -313,14 +370,14 @@ monitor-attach:
 	@tmux attach -t $(SESSION)
 
 # Просмотр логов для конкретных групп
-monitor-platform:
-	@$(MAKE) monitor SERVICES="$(PLATFORM_SERVICES)" SESSION=platform LAYOUT=v
-
-monitor-slam:
-	@$(MAKE) monitor SERVICES="$(SLAM_SERVICE)" SESSION=slam LAYOUT=v
-
 monitor-nav2:
 	@$(MAKE) monitor SERVICES="$(NAV2_SERVICE)" SESSION=nav LAYOUT=v
+
+monitor-sim:
+	@$(MAKE) monitor SERVICES="$(SIM_SERVICES)" SESSION=sim
+
+monitor-platform:
+	@$(MAKE) monitor SERVICES="$(PLATFORM_SERVICES)" SESSION=platform LAYOUT=v
 
 monitor-robot:
 	@$(MAKE) monitor \
@@ -328,8 +385,11 @@ monitor-robot:
 		SESSION=robot \
 		LAYOUT=tiled
 
-monitor-sim:
-	@$(MAKE) monitor SERVICES="$(SIM_SERVICES)" SESSION=sim
+monitor-slam:
+	@$(MAKE) monitor SERVICES="$(SLAM_SERVICE)" SESSION=slam LAYOUT=v
+
+monitor-filters:
+	@$(MAKE) monitor SERVICES="$(FILTER_SERVICES)" SESSION=filters LAYOUT=tiled
 
 # Запустить сервисы И сразу открыть мониторинг
 .PHONY: run-and-monitor
@@ -372,6 +432,7 @@ help:
 	@echo "║    make build-slam           — собрать SLAM сервисы             ║"
 	@echo "║    make build-nav2           — собрать navigation               ║"
 	@echo "║    make build-sim            — собрать симуляцию                ║"
+	@echo "║    make build-filters        — собрать filter сервисы           ║"
 	@echo "║    make build-all            — собрать все образы               ║"
 	@echo "║    make build SERVICES='s1 s2' — собрать конкретные сервисы     ║"
 	@echo "╠══════════════════════════════════════════════════════════════════╣"
@@ -381,6 +442,7 @@ help:
 	@echo "║    make up-slam              — SLAM сервис (lio-sam)            ║"
 	@echo "║    make up-lio-sam           — только lio-sam                   ║"
 	@echo "║    make up-sim               — симуляция                        ║"
+	@echo "║    make up-filters           — filters (lidar/crop/clahe)       ║"
 	@echo "║    make up SERVICES='s1 s2'  — запустить конкретные             ║"
 	@echo "║    make down-all             — остановить все                   ║"
 	@echo "╠══════════════════════════════════════════════════════════════════╣"
@@ -389,6 +451,7 @@ help:
 	@echo "║    make monitor-robot        — body+slam+nav2+rviz (tiled)      ║"
 	@echo "║    make monitor-platform     — body+teleop (вертикально)        ║"
 	@echo "║    make monitor-slam         — SLAM логи (вертикально)          ║"
+	@echo "║    make monitor-filters      — filters (tiled)                  ║"
 	@echo "║    make monitor SERVICES='s1 s2' LAYOUT=h|v|tiled               ║"
 	@echo "║    make run-and-monitor SERVICES='s1 s2' — up + monitor         ║"
 	@echo "║    make monitor-kill         — остановить сервисы + сессию      ║"

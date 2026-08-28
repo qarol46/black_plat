@@ -1,4 +1,3 @@
-name: lidar_filter
 # ____________________________EXTENSTIONS___________________________
 x-env: &env
   environment:
@@ -15,6 +14,8 @@ services:
     build:
       context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/
       dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/docker/Dockerfile
+      args:
+        FILTER_PKG: pcl_filter
       additional_contexts:
         t21-rviz2: "service:rviz2"
     develop:
@@ -46,6 +47,8 @@ services:
     build:
       context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/
       dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/docker/Dockerfile
+      args:
+        FILTER_PKG: angular_crop
       additional_contexts:
         t21-rviz2: "service:rviz2"
     develop:
@@ -77,6 +80,8 @@ services:
     build:
       context: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/
       dockerfile: ${ROOT_DIR:-/home/tms/Projects/black_plat}/filters/docker/Dockerfile
+      args:
+        FILTER_PKG: clahe_ros
       additional_contexts:
         t21-rviz2: "service:rviz2"
     develop:
